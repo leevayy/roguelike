@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using System.Collections;
 using UnityEngine.Serialization;
+using utility;
 using Random = UnityEngine.Random;
 
 public class Enemy : MonoBehaviour
@@ -13,25 +14,8 @@ public class Enemy : MonoBehaviour
     [SerializeField] private Weapon weapon;
     [SerializeField] private Collider planeCollider;
     
-    private float leftLimit, rightLimit;
     private bool isMoving = false;
-
     private bool isActive = false;
-
-    private void Start()
-    {
-        if (planeCollider != null)
-        {
-            var planeBounds = planeCollider.bounds;
-
-            leftLimit = planeBounds.min.x;
-            rightLimit = planeBounds.max.x;
-        }
-        else
-        {
-            Debug.LogError("Plane Collider not assigned.");
-        }
-    }
 
     public void StartMoving()
     {
@@ -61,42 +45,80 @@ public class Enemy : MonoBehaviour
     private IEnumerator MoveBurst()
     {
         isMoving = true;
+        
+        var directionX = GetMoveDirection(); 
+        var directionZ = GetMoveDirection(); 
 
-        var direction = GetMoveDirection();
+        // Randomly choose move distances for both X and Z directions
+        var moveDistanceX = Random.Range(3f, moveBurstRange);
+        var moveDistanceZ = Random.Range(3f, moveBurstRange);
 
-        var moveDistance = direction * Random.Range(3f, moveBurstRange) + 1f;
+        // Calculate the final target position in both X and Z
+        var targetX = transform.position.x + directionX * moveDistanceX;
+        var targetZ = transform.position.z + directionZ * moveDistanceZ;
 
-        var targetX = transform.position.x + moveDistance;
-        if (targetX > rightLimit)
+        // Get movement limits for X and Z
+        var limits = GetLimits();
+
+        // Ensure the target positions don't exceed the limits
+        if (targetX > limits.Right)
         {
-            targetX -= 2 * moveDistance;
+            targetX -= 2 * moveDistanceX;
         }
-        if (targetX < leftLimit)
+        if (targetX < limits.Left)
         {
-            targetX += 2 * moveDistance;
+            targetX += 2 * moveDistanceX;
         }
+        targetX = Mathf.Clamp(targetX, limits.Left, limits.Right);
 
-        targetX = Mathf.Clamp(targetX, leftLimit, rightLimit);
+        if (targetZ > limits.Upper)
+        {
+            targetZ -= 2 * moveDistanceZ;
+        }
+        if (targetZ < limits.Lower)
+        {
+            targetZ += 2 * moveDistanceZ;
+        }
+        targetZ = Mathf.Clamp(targetZ, limits.Lower, limits.Upper);
 
-        var startPositionX = transform.position.x;
-        var journeyLength = Mathf.Abs(targetX - startPositionX);
+        var startPosition = transform.position;
+        var targetPosition = new Vector3(targetX, transform.position.y, targetZ);
+        
+        var journeyLength = Vector3.Distance(startPosition, targetPosition);
         var startTime = Time.time;
-
-        while (Mathf.Abs(transform.position.x - targetX) > 0.01f)
+        
+        while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
         {
             float distanceCovered = (Time.time - startTime) * moveSpeed;
             float fractionOfJourney = distanceCovered / journeyLength;
 
-            transform.position = new Vector3(Mathf.Lerp(startPositionX, targetX, fractionOfJourney), transform.position.y, transform.position.z);
+            // Interpolate position in a straight line
+            transform.position = Vector3.Lerp(startPosition, targetPosition, fractionOfJourney);
 
             yield return null;
         }
 
-        transform.position = new Vector3(targetX, transform.position.y, transform.position.z);
-        
+        // Ensure the object reaches the target position exactly
+        transform.position = targetPosition;
+
         Shoot();
 
         isMoving = false;
+    }
+
+
+    private Limits GetLimits()
+    {  
+        if (planeCollider)
+        {
+            var planeBounds = planeCollider.bounds;
+
+            return new Limits(planeBounds.min.x, planeBounds.max.x, planeBounds.max.z, planeBounds.min.z);
+        }
+        else
+        {
+            throw new Exception("Plane Collider not assigned.");
+        }
     }
 
     private float GetMoveDirection()

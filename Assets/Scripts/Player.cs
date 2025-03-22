@@ -1,11 +1,12 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Movement : MonoBehaviour
+public class Player : MonoBehaviour
 {
     [SerializeField] private Camera cam;
     [SerializeField] private GameObject debugPointer;
-    
+    [SerializeField] private Weapon weapon;
+
     private const float Speed = 10f;
     private const float JumpForce = 2f;
     private const float DashMultiplier = 10f;
@@ -24,14 +25,20 @@ public class Movement : MonoBehaviour
     {
         var horizontalInput = Input.GetAxisRaw("Horizontal");
         var verticalInput = Input.GetAxisRaw("Vertical");
-        moveInput = new Vector3(horizontalInput, 0, verticalInput).normalized * Speed;
+        
+        moveInput = cam.transform.rotation * new Vector3(horizontalInput, 0, verticalInput).normalized * Speed;
 
         isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.1f);
 
         if (isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
-            Vector3 jumpForce = new Vector3(moveInput.x * DashMultiplier, JumpForce, moveInput.z * DashMultiplier);
+            var jumpForce = new Vector3(moveInput.x * DashMultiplier, JumpForce, moveInput.z * DashMultiplier);
             rb.AddForce(jumpForce, ForceMode.Impulse);
+        }
+
+        if (Input.GetButtonDown("Fire1"))
+        {
+            weapon.Shoot(transform.rotation);
         }
     }
 
