@@ -1,0 +1,6 @@
+<engine:UXML xmlns:engine="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="DamagePopup.uss" />
+    <engine:VisualElement name="DamagePopup" style="flex-grow: 1;">
+        <engine:Label name="damage-tag" text="0" />
+    </engine:VisualElement>
+</engine:UXML>

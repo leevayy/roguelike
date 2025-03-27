@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements"
+         xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements"
+         noNamespaceSchemaLocation="../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="MenuItem.uss" />
+    <ui:VisualElement class="container">
+        <ui:Button class="menu-button" name="menu-button" text="menu" />
+        <ui:TextElement class="score" name="score" text="Score: 0" />
+    </ui:VisualElement>
+</ui:UXML>

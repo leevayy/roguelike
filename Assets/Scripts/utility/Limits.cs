@@ -7,7 +7,7 @@ namespace utility
         public readonly float Upper;
         public readonly float Lower;
         
-        public Limits(float leftLimit, float rightLimit, float upperLimit, float lowerLimit)
+        public Limits(float leftLimit, float rightLimit, float lowerLimit, float upperLimit)
         {
             Left = leftLimit;
             Right = rightLimit;

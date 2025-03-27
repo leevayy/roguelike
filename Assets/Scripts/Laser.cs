@@ -7,6 +7,7 @@ public class Laser : MonoBehaviour
 {
     [SerializeField] private float speed = 20f;
     [SerializeField] private float lifetime = 5f;
+    [SerializeField] private Rigidbody rb;
     
     private void Start()
     {
@@ -16,12 +17,11 @@ public class Laser : MonoBehaviour
 
     private void Update()
     {
-        transform.Translate( speed * Time.deltaTime * Vector3.forward);
+        rb.linearVelocity = speed * transform.forward;
     }
-    
-    private void OnCollisionEnter(Collision collision)
+
+    private void OnCollisionEnter()
     {
-        Debug.Log($"Collision with {collision.gameObject.name}");
         Destroy(gameObject);
     }
 }

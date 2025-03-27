@@ -1,0 +1,7 @@
+#DamagePopup {
+    -unity-font-style: bold;
+    color: rgb(181, 210, 248);
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgb(11, 60, 123);
+}
+

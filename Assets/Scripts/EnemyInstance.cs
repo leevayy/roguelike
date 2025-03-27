@@ -1,29 +1,48 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyInstance : MonoBehaviour
 {
-    private GameObject targetEntity;
-    private Enemy enemy;
+    [SerializeField] private Enemy enemy;
+    private bool isAlive = true;
 
-    private void Start()
+    private void Awake()
     {
-        enemy = GetFirstChildOfType<Enemy>();
-    }
-    
-    T GetFirstChildOfType<T>() where T : Component
-    {
-        foreach (Transform child in transform)
+        enemy.GetHitbox().SetOnTriggerEnterHandler((other, hitbox) =>
         {
-            T component = child.GetComponent<T>();
-            if (component != null)
+            if (!isAlive)
             {
-                return component;
+                return;
             }
-        }
-        return null; 
+        
+            var isHitByAlly = other.CompareTag("AllyProjectile");
+        
+            if (isHitByAlly)
+            {
+                var collisionPoint = other.GetComponent<Collider>().ClosestPoint(enemy.transform.position);
+                
+                GameManager.instance.OnHit(HitTarget.Ally, HitTarget.Enemy, collisionPoint);
+            
+                isAlive = false;
+                
+                enemy.PickTarget(null);
+                
+                enemy.StopMoving();
+                
+                hitbox.enabled = false;
+
+                var enemyRigidbody = enemy.GetComponent<Rigidbody>();
+
+                enemyRigidbody.constraints = RigidbodyConstraints.None;
+
+                var hitDirection = other.GetComponent<Rigidbody>().linearVelocity.normalized;
+                
+                enemyRigidbody.AddForceAtPosition(hitDirection, enemy.transform.position + Vector3.up, ForceMode.Impulse);
+                
+                var rotationAxis = Vector3.Cross(hitDirection, Vector3.up) * -1;
+                
+                enemyRigidbody.AddTorque(rotationAxis, ForceMode.Force);
+            }
+        });
     }
 
     public void FocusEntity(GameObject entity)
@@ -33,15 +52,7 @@ public class EnemyInstance : MonoBehaviour
             return;
         }
 
-        targetEntity = entity;
         enemy.StartMoving();
-    }
-
-    private void FixedUpdate()
-    {
-        if (targetEntity)
-        {
-            enemy.transform.LookAt(targetEntity.transform.position);
-        }
+        enemy.PickTarget(entity);
     }
 }

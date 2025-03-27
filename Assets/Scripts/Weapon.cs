@@ -31,9 +31,9 @@ public class Weapon : MonoBehaviour
         // Instantiate the laser at the firing point
         if (laserPrefab)
         {
-            GameObject laser = (GameObject)Instantiate(laserPrefab, position + direction.normalized * 1.1f , rotation);
+            var laser = Instantiate(laserPrefab, position + direction.normalized * 1.1f , rotation);
             
-            laser.transform.rotation = Quaternion.LookRotation(direction);
+            laser.transform.rotation = rotation;
         }
     }
 }

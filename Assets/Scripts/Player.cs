@@ -1,4 +1,6 @@
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
@@ -44,7 +46,7 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rb.velocity = new Vector3(moveInput.x, rb.velocity.y, moveInput.z);
+        rb.linearVelocity = new Vector3(moveInput.x, rb.linearVelocity.y, moveInput.z);
 
         var mouseWorldPosition = GetMouseWorldPosition();
 
@@ -62,5 +64,15 @@ public class Player : MonoBehaviour
         var groundPlane = new Plane(Vector3.up, new Vector3(0f, -1f, 0f));
 
         return groundPlane.Raycast(ray, out var distance) ? ray.GetPoint(distance) : Vector3.zero;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        var isHitByEnemy = collision.collider.CompareTag("EnemyProjectile");
+        
+        if (isHitByEnemy)
+        {
+            GameManager.instance.OnHit(HitTarget.Enemy, HitTarget.Ally, collision.GetContact(0).point);
+        }
     }
 }

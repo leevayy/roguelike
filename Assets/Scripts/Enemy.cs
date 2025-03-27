@@ -1,8 +1,6 @@
 using System;
 using UnityEngine;
-using System.Collections;
-using UnityEngine.Serialization;
-using utility;
+using System.Threading.Tasks;
 using Random = UnityEngine.Random;
 
 public class Enemy : MonoBehaviour
@@ -12,37 +10,83 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float minInterval = 2f;  // Minimum time in seconds between movements
     [SerializeField] private float maxInterval = 3f;  // Maximum time in seconds between movements
     [SerializeField] private Weapon weapon;
-    [SerializeField] private Collider planeCollider;
+    [SerializeField] private Hitbox hitbox;
     
-    private bool isMoving = false;
-    private bool isActive = false;
+    private GameObject target;
+    private Awaitable currentAction;
+    private bool isMoving;
+    private bool shouldMove;
+
+    public Hitbox GetHitbox()
+    {
+        return hitbox;
+    }
 
     public void StartMoving()
     {
-        isActive = true;
+        shouldMove = true;
         StartCoroutine(MoveRandomly());
+    }
+
+    private void FixedUpdate()
+    {
+        if (target)
+        {
+            transform.LookAt(target.transform.position);
+        }
+    }
+
+    public void PickTarget(GameObject newTarget)
+    {
+        target = newTarget;
     }
 
     public void StopMoving()
     {
-        isActive = false;
+        shouldMove = false;
+        currentAction.Cancel();
     }
 
-    private IEnumerator MoveRandomly()
+    private async Awaitable MoveRandomly()
     {
-        while (isActive)
+        while (shouldMove)
         {
             var randomInterval = Random.Range(minInterval, maxInterval);
-            yield return new WaitForSeconds(randomInterval);
+
+            try
+            {
+                currentAction = Awaitable.WaitForSecondsAsync(randomInterval);
+            
+                await currentAction;
+            }
+            catch (Exception e)
+            {
+                if (e is TaskCanceledException)
+                {
+                    return;
+                }
+            }
 
             if (isMoving)
                 continue;
 
-            StartCoroutine(MoveBurst());  
+            try
+            {
+                currentAction = MoveBurst();  
+            
+                await currentAction;
+            }
+            catch (Exception e)
+            {
+                if (e is TaskCanceledException)
+                {
+                    return;
+                }
+            }
         }
     }
 
-    private IEnumerator MoveBurst()
+    private async Awaitable MoveBurst()
     {
         isMoving = true;
         
@@ -58,7 +102,7 @@ public class Enemy : MonoBehaviour
         var targetZ = transform.position.z + directionZ * moveDistanceZ;
 
         // Get movement limits for X and Z
-        var limits = GetLimits();
+        var limits = GameField.instance.GetLimits();
 
         // Ensure the target positions don't exceed the limits
         if (targetX > limits.Right)
@@ -89,36 +133,27 @@ public class Enemy : MonoBehaviour
         
         while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
         {
-            float distanceCovered = (Time.time - startTime) * moveSpeed;
-            float fractionOfJourney = distanceCovered / journeyLength;
+            if (!shouldMove)
+                break;
+            
+            var distanceCovered = (Time.time - startTime) * moveSpeed;
+            var fractionOfJourney = distanceCovered / journeyLength;
 
             // Interpolate position in a straight line
             transform.position = Vector3.Lerp(startPosition, targetPosition, fractionOfJourney);
 
-            yield return null;
+            await Task.Yield();
         }
 
-        // Ensure the object reaches the target position exactly
-        transform.position = targetPosition;
+        if (shouldMove)
+        {
+            // Ensure the object reaches the target position exactly
+            transform.position = targetPosition;
 
-        Shoot();
+            Shoot();
+        }
 
         isMoving = false;
-    }
-
-
-    private Limits GetLimits()
-    {  
-        if (planeCollider)
-        {
-            var planeBounds = planeCollider.bounds;
-
-            return new Limits(planeBounds.min.x, planeBounds.max.x, planeBounds.max.z, planeBounds.min.z);
-        }
-        else
-        {
-            throw new Exception("Plane Collider not assigned.");
-        }
     }
 
     private float GetMoveDirection()
