@@ -1,26 +1,38 @@
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
+using utility;
 
 public class Player : MonoBehaviour
 {
     [SerializeField] private Camera cam;
     [SerializeField] private GameObject debugPointer;
     [SerializeField] private Weapon weapon;
+    [SerializeField] private GameObject modificationPrefab;
+    [SerializeField] private GameObject moneyBagPrefab;
 
     private const float Speed = 10f;
     private const float JumpForce = 2f;
     private const float DashMultiplier = 10f;
+    private readonly Vector3 _cameraOffset = new(-15, 12, -15);
 
-    private Rigidbody rb;
-    private bool isGrounded;
-    private Vector3 moveInput;
-    private Vector3 mousePosition;
+
+    public GameObject moneyBag { get; private set; }
+    private Rigidbody _rb;
+    private bool _isGrounded;
+    private Vector3 _moveInput;
+    private Vector3 _mousePosition;
+    private Vector3 _cameraVelocity = Vector3.zero;
+    private float _healthpoints = 100f;
+
+    public float additionalSpeed = 0f;
     
     private void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        _rb = GetComponent<Rigidbody>();
+    
+        var moneyBagOffset = new Vector3(0, 0.1f, -0.7f);
+        var moneyBagRotation = Quaternion.Euler(0, -90, 0);
+    
+        moneyBag = Instantiate(moneyBagPrefab, transform.position + moneyBagOffset, moneyBagRotation, transform);
     }
 
     private void Update()
@@ -28,14 +40,14 @@ public class Player : MonoBehaviour
         var horizontalInput = Input.GetAxisRaw("Horizontal");
         var verticalInput = Input.GetAxisRaw("Vertical");
         
-        moveInput = cam.transform.rotation * new Vector3(horizontalInput, 0, verticalInput).normalized * Speed;
+        _moveInput = cam.transform.rotation * new Vector3(horizontalInput, 0, verticalInput).normalized * (Speed + additionalSpeed);
 
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.1f);
+        _isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.1f);
 
-        if (isGrounded && Input.GetKeyDown(KeyCode.Space))
+        if (_isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
-            var jumpForce = new Vector3(moveInput.x * DashMultiplier, JumpForce, moveInput.z * DashMultiplier);
-            rb.AddForce(jumpForce, ForceMode.Impulse);
+            var jumpForce = new Vector3(_moveInput.x * DashMultiplier, JumpForce, _moveInput.z * DashMultiplier);
+            _rb.AddForce(jumpForce, ForceMode.Impulse);
         }
 
         if (Input.GetButtonDown("Fire1"))
@@ -46,7 +58,7 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rb.linearVelocity = new Vector3(moveInput.x, rb.linearVelocity.y, moveInput.z);
+        _rb.linearVelocity = new Vector3(_moveInput.x, _rb.linearVelocity.y, _moveInput.z);
 
         var mouseWorldPosition = GetMouseWorldPosition();
 
@@ -56,6 +68,16 @@ public class Player : MonoBehaviour
         }
 
         transform.LookAt(new Vector3(mouseWorldPosition.x, 0f, mouseWorldPosition.z));
+    }
+    
+    private void LateUpdate()
+    {
+        if (SettingsManager.instance.cameraType == CameraMode.Static) return;
+        
+        var movementOffset = (_mousePosition + _rb.position) / 2;
+        
+        var targetPosition = _cameraOffset + movementOffset;
+        cam.transform.position = Vector3.SmoothDamp(cam.transform.position, targetPosition, ref _cameraVelocity, 0.25f);
     }
 
     private Vector3 GetMouseWorldPosition()
@@ -72,7 +94,25 @@ public class Player : MonoBehaviour
         
         if (isHitByEnemy)
         {
-            GameManager.instance.OnHit(HitTarget.Enemy, HitTarget.Ally, collision.GetContact(0).point);
+            var laserDamage = collision.gameObject.GetComponent<Laser>().damage;
+            
+            GameManager.instance.OnHit(new HitInfo(GameHitEntity.Enemy, GetDamage(laserDamage)), GameHitEntity.Ally, collision.GetContact(0).point);
         }
+    }
+
+    private float GetDamage(float damageIn)
+    {
+        _healthpoints -= damageIn;
+
+        return damageIn;
+    }
+
+    public void AddModification(Modification modification)
+    {
+        var mod = Instantiate(modificationPrefab, weapon.transform);
+        
+        var modObject = mod.GetComponent<ModificationObject>();
+        
+        weapon.AddModification(modObject, modification);
     }
 }

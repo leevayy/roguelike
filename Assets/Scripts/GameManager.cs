@@ -1,11 +1,14 @@
 using UnityEngine;
+using utility;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private GameObject player;  
+    [SerializeField] private Player player;  
     [SerializeField] private EnemySpawner enemySpawner;
     [SerializeField] private DamagePopup damagePopup;
+    [SerializeField] private HealthBarManager healthBarManager;
 
+    private readonly Vector3 _defaultMoneyBagScale = new(0.2f, 0.5f, 0.5f);
     private int _score;
     public int score
     {
@@ -14,6 +17,8 @@ public class GameManager : MonoBehaviour
         {
             _score = value;
             SimpleRuntimeUI.instance.UpdateScore(value);
+
+            UpdatePlayerMass(Mathf.Floor(_score / 50f));
         }
     }
 
@@ -33,24 +38,50 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         StartFocus();
+
+        player.moneyBag.transform.localScale = _defaultMoneyBagScale;
     }
 
-    public void OnHit(HitTarget hitSource, HitTarget hitTarget, Vector3 hitPoint)
+    public void OnHit(HitInfo hitInfo, GameHitEntity gameHitEntity, Vector3 hitPoint)
     {
-        if (hitSource == HitTarget.Enemy && hitTarget == HitTarget.Ally)
+        if (hitInfo.Source == GameHitEntity.Enemy && gameHitEntity == GameHitEntity.Ally)
         {
             score--;
         }
 
-        if (hitSource == HitTarget.Ally && hitTarget == HitTarget.Enemy)
+        if (hitInfo.Source == GameHitEntity.Ally && gameHitEntity == GameHitEntity.Enemy)
         {
-            damagePopup.ShowDamagePopup(999, hitPoint);
             score++;
+            damagePopup.ShowDamagePopup(hitInfo.Damage, hitPoint);
         }
     }
 
-    [ContextMenu(nameof(StartFocus))] private void StartFocus()
+    private void UpdatePlayerMass(float mass)
     {
-        _ = enemySpawner.SpawnEnemies(enemy => enemy.FocusEntity(player));
+        var playerRb = player.GetComponent<Rigidbody>();
+            
+        playerRb.mass = Mathf.Max(1 + mass, 0.5f);
+
+        player.additionalSpeed = -1 * mass;
+
+        var scaleAddition = mass <= 4f 
+            ? new Vector3(Mathf.Max(0.1f * mass, -1f), 0, 0)
+            : new Vector3(0.4f, 0, 0) + new Vector3(0.5f, 0.5f, 1f) * mass;
+        
+        player.moneyBag.transform.localScale = _defaultMoneyBagScale + scaleAddition;
+    }
+
+    private void StartFocus()
+    {
+        _ = enemySpawner.SpawnEnemies(enemy =>
+        {
+            healthBarManager.AddHealthBar(100, enemy.gameObject);
+            enemy.FocusEntity(player.gameObject);
+        });
+    }
+    
+    [ContextMenu(nameof(AddMod))] private void AddMod()
+    {
+        player.AddModification(new Modification());
     }
 }

@@ -1,0 +1,7 @@
+<engine:UXML xmlns:engine="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="HealthBar.uss" />
+    <engine:VisualElement name="HealthBar">
+        <engine:Label name="name-tag" text="John Pork" />
+        <engine:Label name="health-tag" text="100" />
+    </engine:VisualElement>
+</engine:UXML>

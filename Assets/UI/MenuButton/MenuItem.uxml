@@ -4,6 +4,6 @@
     <Style src="MenuItem.uss" />
     <ui:VisualElement class="container">
         <ui:Button class="menu-button" name="menu-button" text="menu" />
-        <ui:TextElement class="score" name="score" text="Score: 0" />
+        <ui:TextElement class="score" name="score" text="$0" />
     </ui:VisualElement>
 </ui:UXML>

@@ -12,10 +12,18 @@ public class Enemy : MonoBehaviour
     [SerializeField] private Weapon weapon;
     [SerializeField] private Hitbox hitbox;
     
-    private GameObject target;
-    private Awaitable currentAction;
-    private bool isMoving;
-    private bool shouldMove;
+    private GameObject _target;
+    private Awaitable _currentAction;
+    private bool _isMoving;
+    private bool _shouldMove;
+
+    public void SET_MAX_SPEED()
+    {
+        moveSpeed = 20f;
+        moveBurstRange = 12f;
+        minInterval = 0.0f;
+        maxInterval = 0.5f;
+    }
 
     public Hitbox GetHitbox()
     {
@@ -24,40 +32,54 @@ public class Enemy : MonoBehaviour
 
     public void StartMoving()
     {
-        shouldMove = true;
+        _shouldMove = true;
         StartCoroutine(MoveRandomly());
     }
 
     private void FixedUpdate()
     {
-        if (target)
+        var isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.1f);
+
+        if (!isGrounded && _shouldMove)
         {
-            transform.LookAt(target.transform.position);
+            StopMoving();
+
+            return;
+        }
+
+        if (_shouldMove && _target)
+        {
+            transform.LookAt(_target.transform.position);
+        }
+
+        if (!_shouldMove && _target)
+        {
+            StartMoving();
         }
     }
 
     public void PickTarget(GameObject newTarget)
     {
-        target = newTarget;
+        _target = newTarget;
     }
 
     public void StopMoving()
     {
-        shouldMove = false;
-        currentAction.Cancel();
+        _shouldMove = false;
+        _currentAction.Cancel();
     }
 
     private async Awaitable MoveRandomly()
     {
-        while (shouldMove)
+        while (_shouldMove)
         {
             var randomInterval = Random.Range(minInterval, maxInterval);
 
             try
             {
-                currentAction = Awaitable.WaitForSecondsAsync(randomInterval);
+                _currentAction = Awaitable.WaitForSecondsAsync(randomInterval);
             
-                await currentAction;
+                await _currentAction;
             }
             catch (Exception e)
             {
@@ -67,14 +89,14 @@ public class Enemy : MonoBehaviour
                 }
             }
 
-            if (isMoving)
+            if (_isMoving)
                 continue;
 
             try
             {
-                currentAction = MoveBurst();  
+                _currentAction = MoveBurst();  
             
-                await currentAction;
+                await _currentAction;
             }
             catch (Exception e)
             {
@@ -88,7 +110,7 @@ public class Enemy : MonoBehaviour
 
     private async Awaitable MoveBurst()
     {
-        isMoving = true;
+        _isMoving = true;
         
         var directionX = GetMoveDirection(); 
         var directionZ = GetMoveDirection(); 
@@ -133,7 +155,7 @@ public class Enemy : MonoBehaviour
         
         while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
         {
-            if (!shouldMove)
+            if (!_shouldMove)
                 break;
             
             var distanceCovered = (Time.time - startTime) * moveSpeed;
@@ -142,10 +164,10 @@ public class Enemy : MonoBehaviour
             // Interpolate position in a straight line
             transform.position = Vector3.Lerp(startPosition, targetPosition, fractionOfJourney);
 
-            await Task.Yield();
+            await Awaitable.NextFrameAsync();
         }
 
-        if (shouldMove)
+        if (_shouldMove)
         {
             // Ensure the object reaches the target position exactly
             transform.position = targetPosition;
@@ -153,7 +175,7 @@ public class Enemy : MonoBehaviour
             Shoot();
         }
 
-        isMoving = false;
+        _isMoving = false;
     }
 
     private float GetMoveDirection()

@@ -8,10 +8,11 @@ public class Laser : MonoBehaviour
     [SerializeField] private float speed = 20f;
     [SerializeField] private float lifetime = 5f;
     [SerializeField] private Rigidbody rb;
-    
+
+    public float damage { get; set; }
+
     private void Start()
     {
-        // Destroy the laser after 'lifetime' seconds
         Destroy(gameObject, lifetime);
     }
 
@@ -20,7 +21,7 @@ public class Laser : MonoBehaviour
         rb.linearVelocity = speed * transform.forward;
     }
 
-    private void OnCollisionEnter()
+    private void OnCollisionEnter(Collision collision)
     {
         Destroy(gameObject);
     }

@@ -52,7 +52,7 @@ public class SimpleRuntimeUI : MonoBehaviour
 
     public void UpdateScore(int score)
     {
-        scoreText.text = $"Score: {score}";
+        scoreText.text = $"${score}";
     }
 
     private void UpdateButton(bool isOpen)

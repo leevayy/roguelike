@@ -19,7 +19,7 @@ public class DamagePopup : MonoBehaviour
         baseContainer = baseContainerDocument.rootVisualElement.Q<VisualElement>("BaseContainer");
     }
 
-    public void ShowDamagePopup(float damage, Vector3 position)
+    public async Awaitable ShowDamagePopup(float damage, Vector3 position)
     {
         var damagePopup = damagePopupTemplate.Instantiate();
         
@@ -38,9 +38,9 @@ public class DamagePopup : MonoBehaviour
 
         damagePopup.style.position = Position.Absolute;
         damagePopup.style.left = panelPosition.x;
-        damagePopup.style.top = panelPosition.y;
+        damagePopup.style.top = panelPosition.y - 20f;
 
-        AnimatePopup(damagePopup);
+        await AnimatePopup(damagePopup);
     }
     
     
@@ -69,7 +69,7 @@ public class DamagePopup : MonoBehaviour
             popup.style.opacity = newOpacity;
 
             // Yield control until next frame on the main thread
-            await Task.Yield();
+            await Awaitable.NextFrameAsync();
         }
 
         // Remove popup from the hierarchy once done
