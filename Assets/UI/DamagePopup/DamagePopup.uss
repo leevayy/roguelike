@@ -5,3 +5,12 @@
     -unity-text-outline-color: rgb(11, 60, 123);
 }
 
+.moneyGained {
+    color: rgb(181, 248, 215);
+    -unity-text-outline-color: rgb(22, 123, 11);
+}
+
+.moneyLost {
+    color: rgb(248, 181, 207);
+    -unity-text-outline-color: rgb(123, 11, 20);
+}

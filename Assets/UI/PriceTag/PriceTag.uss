@@ -1,0 +1,7 @@
+#PriceTag {
+    -unity-font-style: bold;
+    translate: -50% -50%;
+    
+    align-items: center;
+}
+

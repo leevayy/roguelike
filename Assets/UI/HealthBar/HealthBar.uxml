@@ -3,5 +3,9 @@
     <engine:VisualElement name="HealthBar">
         <engine:Label name="name-tag" text="John Pork" />
         <engine:Label name="health-tag" text="100" />
+        <engine:VisualElement name="healthBarContainer">
+            <engine:VisualElement name="bar" />
+            <engine:VisualElement name="health" />
+        </engine:VisualElement>
     </engine:VisualElement>
 </engine:UXML>

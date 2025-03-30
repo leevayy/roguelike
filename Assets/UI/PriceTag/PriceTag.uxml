@@ -1,0 +1,9 @@
+<engine:UXML xmlns:engine="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="PriceTag.uss" />
+    <engine:VisualElement name="PriceTag" style="flex-grow: 1;">
+        <engine:TextElement name="name" text=""/>
+        <engine:TextElement name="description" text="" />
+        <engine:TextElement name="PriceText" text="$0" />
+        <engine:TextElement name="hint" text="Купить - F" />
+    </engine:VisualElement>
+</engine:UXML>

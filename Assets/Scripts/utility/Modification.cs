@@ -8,6 +8,8 @@ public enum ModificationType
     AddFlatValue,
     AddMultiplyValue,
     MultiplyMultiplyValue,
+    RubberDuck,
+    MoneyEqualsLife,
 }
 
 public class Modification
@@ -15,11 +17,19 @@ public class Modification
     public ModificationType type { get; private set; }
     public float value { get; private set; }
 
-    public Modification()
+    public Modification() : this(GetRandomModificationType())
+    {
+    }
+    
+    private static ModificationType GetRandomModificationType()
     {
         var values = Enum.GetValues(typeof(ModificationType));
-        
-        type = (ModificationType)values.GetValue(Random.Range(0, values.Length));
+        return (ModificationType)values.GetValue(Random.Range(0, values.Length));
+    }
+    
+    public Modification(ModificationType modType)
+    {
+        type = modType;
         value = type switch
         {
             ModificationType.AddFlatValue => 15f,

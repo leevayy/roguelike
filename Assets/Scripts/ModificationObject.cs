@@ -6,11 +6,13 @@ public class ModificationObject : MonoBehaviour
     [SerializeField] private Material addFlatValueMaterial;
     [SerializeField] private Material addMultiplyValueMaterial;
     [SerializeField] private Material multiplyMultiplyValueMaterial;
+    [SerializeField] private Material rubberDuckMaterial;
+    [SerializeField] private Material moneyEqualsLifeMaterial;
     
-    private Modification _mod;
+    public Modification mod { get; private set; }
     private bool _isInitialized;
     public int order { get; private set; }
-
+    
     public void Init(Modification mod, int newOrder)
     {
         if (_isInitialized)
@@ -18,7 +20,7 @@ public class ModificationObject : MonoBehaviour
             throw new Exception("Modification is already initialized");
         }
                 
-        _mod = mod;
+        this.mod = mod;
         ChangeOrder(newOrder);
         
         var meshRenderer = GetComponent<MeshRenderer>();
@@ -28,11 +30,13 @@ public class ModificationObject : MonoBehaviour
             return;
         }
 
-        meshRenderer.material = _mod.type switch
+        meshRenderer.material = this.mod.type switch
         {
             ModificationType.AddFlatValue => addFlatValueMaterial,
             ModificationType.AddMultiplyValue => addMultiplyValueMaterial,
             ModificationType.MultiplyMultiplyValue => multiplyMultiplyValueMaterial,
+            ModificationType.RubberDuck => rubberDuckMaterial,
+            ModificationType.MoneyEqualsLife => moneyEqualsLifeMaterial,
             _ => meshRenderer.material
         };
     }
@@ -40,11 +44,11 @@ public class ModificationObject : MonoBehaviour
     public void ChangeOrder(int newOrder)
     {
         order = newOrder;
-        transform.localScale = Vector3.one + Vector3.one / 10f * order;
+        transform.localScale = Vector3.one + (Vector3.one - Vector3.up) / 10f * order;
     }
     
     public Modification GetStats()
     {
-        return _mod;
+        return mod;
     }
 }

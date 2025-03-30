@@ -1,0 +1,31 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+    
+    font-size: 20px;
+    padding: 30px;
+}
+
+.hidden {
+    display: none;
+}
+
+.top {
+    display: flex;
+    width: 100%;
+    
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+.small {
+    font-size: 10px;
+}
+
+.timer {
+    -unity-font-definition: url("/Assets/Fonts/Mono.asset");
+    color: green;
+    background-color: black;
+}

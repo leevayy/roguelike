@@ -10,6 +10,8 @@ public class HealthBar : MonoBehaviour
     [SerializeField] private EnemyInstance enemyInstance;
 
     private VisualElement _healthBar;
+    private VisualElement _health;
+    private VisualElement _healthBarContainer;
     private UIDocument _baseContainerDocument;
 
     private void Awake()
@@ -21,6 +23,8 @@ public class HealthBar : MonoBehaviour
     {
         _healthBar = healthBar;
         _baseContainerDocument = baseContainerDocument;
+        _health = _healthBar.Q<VisualElement>("health");
+        _healthBarContainer = _healthBar.Q<VisualElement>("healthBarContainer");
         
         enemyInstance.onHealthPointsChange = UpdateHealth;
     }
@@ -51,10 +55,19 @@ public class HealthBar : MonoBehaviour
         _healthBar.style.display = distance <= 200 ? DisplayStyle.Flex : DisplayStyle.None;
     }
 
-    private void UpdateHealth(float health)
+    private void UpdateHealth(float health, float maxHealth)
     {
         if (_healthBar == null) return;
+        
+        var isDead = health <= 0f;
 
-        _healthBar.Q<Label>("health-tag").text = health > 0 ? health.ToString(CultureInfo.CurrentCulture) : "💀";
+        _healthBar.Q<Label>("health-tag").text = isDead ? "💀" : health.ToString(CultureInfo.CurrentCulture);
+        _health.style.width = health / maxHealth * 100f;
+        
+        if (isDead)
+        {
+            _healthBarContainer.AddToClassList("dead");
+            _healthBarContainer.style.display = DisplayStyle.None;
+        }
     }
 }

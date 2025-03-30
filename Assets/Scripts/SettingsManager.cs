@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -8,6 +9,7 @@ public enum CameraMode {
 
 public class SettingsManager : MonoBehaviour
 {
+    public float volume = 0.2f;
     public static SettingsManager instance { get; private set; }
     
     private void Awake()
@@ -19,6 +21,11 @@ public class SettingsManager : MonoBehaviour
         }
 
         instance = this;
+    }
+
+    private void Start()
+    {
+        AudioListener.volume = volume;
     }
 
     public CameraMode cameraType = CameraMode.Static;

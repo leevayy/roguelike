@@ -43,6 +43,31 @@ public class DamagePopup : MonoBehaviour
         await AnimatePopup(damagePopup);
     }
     
+    public async Awaitable ShowDamagePopup(string change, Vector2 panelPosition)
+    {
+        var damagePopup = damagePopupTemplate.Instantiate();
+        
+        var label = damagePopup.Q<Label>("damage-tag") as Label;
+
+        if (change[0] == '-')
+        {
+            label.AddToClassList("moneyLost");
+        }
+        else
+        {
+            label.AddToClassList("moneyGained");
+        }
+        
+        label.text = change;
+        
+        baseContainer.Add(damagePopup);
+
+        damagePopup.style.position = Position.Absolute;
+        damagePopup.style.left = panelPosition.x;
+        damagePopup.style.bottom =  panelPosition.y;
+
+        await AnimatePopup(damagePopup);
+    }
     
     private async Awaitable AnimatePopup(VisualElement popup)
     {
@@ -50,10 +75,10 @@ public class DamagePopup : MonoBehaviour
         await Awaitable.WaitForSecondsAsync(2f);
 
         // Configure how you want the popup to move & fade
-        float startTop  = popup.resolvedStyle.top;
-        float endTop    = startTop - 20f;  // move upward by 20 px
-        float fadeTime  = 1f;
-        float elapsed   = 0f;
+        var startTop  = popup.resolvedStyle.top;
+        var endTop    = startTop - 20f;  // move upward by 20 px
+        var fadeTime  = 1f;
+        var elapsed   = 0f;
 
         while (elapsed < fadeTime)
         {
@@ -69,7 +94,7 @@ public class DamagePopup : MonoBehaviour
             popup.style.opacity = newOpacity;
 
             // Yield control until next frame on the main thread
-            await Awaitable.NextFrameAsync();
+            await Task.Yield();
         }
 
         // Remove popup from the hierarchy once done

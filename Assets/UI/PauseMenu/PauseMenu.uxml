@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="PauseMenu.uss" />
+    <ui:VisualElement name="container" class="container hidden">
+        <ui:TextElement text="alpha (тут пока стрелочки + enter)" />
+        <ui:Button name="resume" text="Продолжить" />
+        <ui:Button name="restart" text="Начать заново" />
+    </ui:VisualElement>
+</ui:UXML>

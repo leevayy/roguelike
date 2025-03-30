@@ -1,0 +1,20 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="GameUI.uss" />
+    <ui:VisualElement class="container">
+        <ui:VisualElement class="top" >
+            <ui:VisualElement>
+                <ui:TextElement class="goal hidden small" name="history-goal" text="No goal" />
+                <ui:TextElement class="goal" name="goal" text="No goal" />
+            </ui:VisualElement>
+            <ui:VisualElement>
+                <ui:TextElement class="timer hidden small" name="history-timer" text="00:00.000" />
+                <ui:TextElement class="timer" name="timer" text="00:00.000" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement>
+            <ui:TextElement class="hp" name="hp" text="❤️: 0" />
+            <ui:TextElement class="kills" name="kills" text="☠️: 0 (+$0)" />
+            <ui:TextElement class="score" name="score" text="$0" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

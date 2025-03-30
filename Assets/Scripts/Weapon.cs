@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 [System.Serializable]
 public class Weapon : MonoBehaviour
@@ -8,7 +12,14 @@ public class Weapon : MonoBehaviour
     [SerializeField] private GameObject laserPrefab;
     [SerializeField] private GameObject dummy;
     [SerializeField] private float flatDamage = 10f;
-    [SerializeField] private List<ModificationObject> modifications;
+    [SerializeField] private float cooldown = 0.2f;
+    [SerializeField] private List<ModificationObject> mods;
+    [SerializeField] private AudioSource shootSound;
+    // [SerializeField] private AudioSource jamSound;
+    
+    private float _sinceLastShot;
+    
+    public ReadOnlyCollection<Modification> modifications => mods.AsReadOnly().Select(obj => obj.mod).ToList().AsReadOnly();
     
     private void Start()
     {
@@ -23,9 +34,11 @@ public class Weapon : MonoBehaviour
         var flatValue = flatDamage;
         var multValue = 1f;
 
-        modifications.Sort((mod1, mod2) => mod1.order - mod2.order);
+        mods.Sort((mod1, mod2) => mod1.order - mod2.order);
 
-        foreach (var modObject in modifications)
+        var damageMods = mods.Where((mod) => mod.mod.type != ModificationType.RubberDuck && mod.mod.type != ModificationType.MoneyEqualsLife);
+
+        foreach (var modObject in damageMods)
         {
             var mod = modObject.GetStats();
             
@@ -48,15 +61,40 @@ public class Weapon : MonoBehaviour
         return flatValue * multValue;
     }
 
+    private void Update()
+    {
+        if (_sinceLastShot < cooldown + 1)
+        {
+            _sinceLastShot += Time.deltaTime;
+        }
+    }
+
     public void AddModification(ModificationObject mod, Modification modification)
     {
-        mod.Init(modification, modifications.Count);
+        mod.Init(modification, mods.Count);
 
-        modifications.Add(mod);
+        mods.Add(mod);
+    }
+
+    public ReadOnlyCollection<Modification> DropModifications()
+    {
+        var oldMods = modifications; 
+        
+        mods.Clear();
+        
+        return oldMods;
     }
 
     public void Shoot(Quaternion rotation)
     {
+        if (_sinceLastShot < cooldown)
+        {
+            // jamSound.Play();
+            return;
+        }
+        
+        _sinceLastShot = 0;
+        
         var position = transform.position;
 
         var direction = rotation * Vector3.forward;
@@ -69,6 +107,11 @@ public class Weapon : MonoBehaviour
         // Instantiate the laser at the firing point
         if (laserPrefab)
         {
+            var pitch = 3 - _sinceLastShot / (_sinceLastShot + cooldown + 1) * (1 * Random.Range(0f, 1f));
+            shootSound.pitch = pitch;
+                
+            shootSound.Play();
+            
             var laser = Instantiate(laserPrefab, position + direction.normalized * 1.5f , rotation);
             
             laser.transform.rotation = rotation;

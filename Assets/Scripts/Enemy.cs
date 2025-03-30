@@ -11,6 +11,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float maxInterval = 3f;  // Maximum time in seconds between movements
     [SerializeField] private Weapon weapon;
     [SerializeField] private Hitbox hitbox;
+    [SerializeField] private GameObject modificationPrefab;
     
     private GameObject _target;
     private Awaitable _currentAction;
@@ -65,45 +66,41 @@ public class Enemy : MonoBehaviour
 
     public void StopMoving()
     {
+        if (!_shouldMove) return;
+        
         _shouldMove = false;
-        _currentAction.Cancel();
+        if (_currentAction == null) return;
+        
+        if (!_currentAction.IsCompleted)
+        {
+            _currentAction.Cancel();
+        }
     }
 
     private async Awaitable MoveRandomly()
     {
         while (_shouldMove)
         {
+            if (_isMoving)
+            {
+                await Task.Yield(); // Allows the game loop to progress
+                continue;
+            }
+
             var randomInterval = Random.Range(minInterval, maxInterval);
 
             try
             {
                 _currentAction = Awaitable.WaitForSecondsAsync(randomInterval);
-            
+                await _currentAction;
+
+                _currentAction = MoveBurst();
                 await _currentAction;
             }
-            catch (Exception e)
+            // can be cancelled so it's okay
+            catch (OperationCanceledException)
             {
-                if (e is TaskCanceledException)
-                {
-                    return;
-                }
-            }
-
-            if (_isMoving)
-                continue;
-
-            try
-            {
-                _currentAction = MoveBurst();  
-            
-                await _currentAction;
-            }
-            catch (Exception e)
-            {
-                if (e is TaskCanceledException)
-                {
-                    return;
-                }
+                break;
             }
         }
     }
@@ -124,7 +121,7 @@ public class Enemy : MonoBehaviour
         var targetZ = transform.position.z + directionZ * moveDistanceZ;
 
         // Get movement limits for X and Z
-        var limits = GameField.instance.GetLimits();
+        var limits = GameField.current.GetLimits();
 
         // Ensure the target positions don't exceed the limits
         if (targetX > limits.Right)
@@ -156,7 +153,9 @@ public class Enemy : MonoBehaviour
         while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
         {
             if (!_shouldMove)
+            {
                 break;
+            }
             
             var distanceCovered = (Time.time - startTime) * moveSpeed;
             var fractionOfJourney = distanceCovered / journeyLength;
@@ -164,14 +163,12 @@ public class Enemy : MonoBehaviour
             // Interpolate position in a straight line
             transform.position = Vector3.Lerp(startPosition, targetPosition, fractionOfJourney);
 
-            await Awaitable.NextFrameAsync();
+            await Task.Yield();
         }
 
         if (_shouldMove)
         {
-            // Ensure the object reaches the target position exactly
             transform.position = targetPosition;
-
             Shoot();
         }
 
@@ -188,5 +185,14 @@ public class Enemy : MonoBehaviour
     private void Shoot()
     {
         weapon.Shoot(transform.rotation);
+    }
+    
+    public void AddModification(Modification modification)
+    {
+        var mod = Instantiate(modificationPrefab, weapon.transform);
+        
+        var modObject = mod.GetComponent<ModificationObject>();
+        
+        weapon.AddModification(modObject, modification);
     }
 }

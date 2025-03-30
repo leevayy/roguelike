@@ -6,19 +6,19 @@ using Random = UnityEngine.Random;
 
 public class GameField : MonoBehaviour
 {
-    public static GameField instance { get; private set; }
+    public static GameField current { get; private set; }
     private Collider fieldCollider;
     [CanBeNull] private Limits cachedLimits;
 
     private void Awake()
     {
-        if (instance != null && instance != this)
+        if (current != null && current != this)
         {
             Destroy(gameObject);
             return;
         }
 
-        instance = this;
+        current = this;
         fieldCollider = GetComponent<Collider>();
     }
 

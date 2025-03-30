@@ -7,6 +7,6 @@ public class SafeFallingPlane : MonoBehaviour
     {
         if (!other.CompareTag("Player") && !other.CompareTag("Enemy")) return;
         
-        other.transform.position = GameField.instance.GetRandomPointWithin() + Vector3.up * 2f;
+        other.transform.position = GameField.current.GetRandomPointWithin() + Vector3.up * 2f;
     }
 }
