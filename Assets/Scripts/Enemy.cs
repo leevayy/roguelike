@@ -7,8 +7,8 @@ public class Enemy : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 5f;  // Speed of the movement (how fast the object moves)
     [SerializeField] private float moveBurstRange = 6f;  // Maximum distance for each burst of movement
-    [SerializeField] private float minInterval = 2f;  // Minimum time in seconds between movements
-    [SerializeField] private float maxInterval = 3f;  // Maximum time in seconds between movements
+    [SerializeField] private float minInterval = 0.2f;  // Minimum time in seconds between movements
+    [SerializeField] private float maxInterval = 1.5f;  // Maximum time in seconds between movements
     [SerializeField] private Weapon weapon;
     [SerializeField] private Hitbox hitbox;
     [SerializeField] private GameObject modificationPrefab;
@@ -23,7 +23,7 @@ public class Enemy : MonoBehaviour
         moveSpeed = 20f;
         moveBurstRange = 12f;
         minInterval = 0.0f;
-        maxInterval = 0.5f;
+        maxInterval = 0.1f;
     }
 
     public Hitbox GetHitbox()
@@ -91,10 +91,13 @@ public class Enemy : MonoBehaviour
 
             try
             {
-                _currentAction = Awaitable.WaitForSecondsAsync(randomInterval);
+                _currentAction = Awaitable.WaitForSecondsAsync(0.1f);
                 await _currentAction;
-
+                
                 _currentAction = MoveBurst();
+                await _currentAction;
+                
+                _currentAction = Awaitable.WaitForSecondsAsync(randomInterval);
                 await _currentAction;
             }
             // can be cancelled so it's okay

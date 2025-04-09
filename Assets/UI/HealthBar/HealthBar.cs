@@ -36,6 +36,11 @@ public class HealthBar : MonoBehaviour
 
     private void SetHealthBarPosition()
     {
+        if (!_baseContainerDocument || _baseContainerDocument.rootVisualElement == null || _baseContainerDocument.rootVisualElement.panel  == null)
+        {
+            return;
+        }
+        
         var screenPosition = cam.WorldToScreenPoint(uiTransform.transform.position);
 
         var newPosition = new Vector2(screenPosition.x, Screen.height - screenPosition.y);

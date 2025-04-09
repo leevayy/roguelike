@@ -10,6 +10,7 @@ public class Laser : MonoBehaviour
     [SerializeField] private Rigidbody rb;
 
     public float damage { get; set; }
+    public float applyBurn { get; set; }
 
     private void Start()
     {
@@ -23,6 +24,16 @@ public class Laser : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (collision.gameObject.CompareTag("AllyProjectile") && gameObject.CompareTag("AllyProjectile"))
+        {
+            return;
+        }
+        
+        if (collision.gameObject.CompareTag("IgnoreAllyProjectile") && gameObject.CompareTag("AllyProjectile"))
+        {
+            return;
+        }
+        
         Destroy(gameObject);
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -26,6 +27,7 @@ public class GameUI : MonoBehaviour
     private TextElement _goalText;
     private TextElement _hpText;
     private TextElement _killText;
+    private List<TextElement> _mods = new();
     
     //Add logic that interacts with the UI controls in the `OnEnable` methods
     private void OnEnable()
@@ -42,6 +44,11 @@ public class GameUI : MonoBehaviour
         _hpText = _document.rootVisualElement.Q("hp") as TextElement;
         
         _killText = _document.rootVisualElement.Q("kills") as TextElement;
+
+        for (var i = 0; i < 5; i++)
+        {
+            _mods.Add(_document.rootVisualElement.Q<TextElement>($"lens-{i}"));
+        }
     }
 
     public void UpdateScore(int score)
@@ -77,6 +84,14 @@ public class GameUI : MonoBehaviour
             GoalType.KILL_N_ENEMIES => $"Убей врагов: {goal.N}",
             _ => "Нет цели"
         };
+    }
+    
+    public void UpdateMods(int lensIndex, string lensName)
+    {
+        if (_mods[lensIndex] != null)
+        {
+            _mods[lensIndex].text = lensName;
+        }
     }
 
     private void CloneTop()

@@ -5,6 +5,7 @@ using utility;
 
 public class EnemyInstance : MonoBehaviour
 {
+    [SerializeField] private AudioSource maxVerstappenSound;
     [SerializeField] private Enemy enemy;
     private string _name;
     private float _maxHealthPoints = 100f;
@@ -69,6 +70,7 @@ public class EnemyInstance : MonoBehaviour
     {
         if (_name == "Max Verstappen")
         {
+            maxVerstappenSound.Play();
             enemy.SET_MAX_SPEED();
         }
     }

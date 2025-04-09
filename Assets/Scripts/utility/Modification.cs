@@ -10,7 +10,15 @@ public enum ModificationType
     MultiplyMultiplyValue,
     RubberDuck,
     MoneyEqualsLife,
+    MoveSpeedIncrease,
+    HealOnKill,
+    // BurnEffect,
+    // KeepDistance,
+    ReflectDamage,
+    DoubleDamageAndTaken,
+    InvulnerabilityOnHit
 }
+
 
 public class Modification
 {

@@ -11,14 +11,9 @@ public class ModManager : MonoBehaviour
     private readonly List<GameObject> _buyBoxes = new(); 
     public static ModManager instance { get; private set; }
 
-    public bool HasDuck()
+    public bool HasMod(ModificationType modType)
     {
-        return GameManager.instance.modifications.ToList().Exists(mod => mod.type == ModificationType.RubberDuck);
-    }
-    
-    public bool HasMoneyEqualsLife()
-    {
-        return GameManager.instance.modifications.ToList().Exists(mod => mod.type == ModificationType.MoneyEqualsLife);
+        return GameManager.instance.modifications.ToList().Exists(mod => mod.type == modType);
     }
     
     private void Awake()
@@ -34,15 +29,14 @@ public class ModManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.G))
-        {
+        if (Input.GetKeyDown(KeyCode.G)) {
             DropItems();
         }
     }
 
     private void DropItems()
     {
-        var mods = GameManager.instance.OnDrop(out var playerTransform );
+        var mods = GameManager.instance.OnDrop(out var playerTransform);
 
         var i = 0;
         foreach (var mod in mods)

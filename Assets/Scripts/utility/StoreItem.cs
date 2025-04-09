@@ -1,8 +1,3 @@
-using System;
-using UnityEngine;
-using UnityEngine.PlayerLoop;
-using Random = UnityEngine.Random;
-
 public enum StoreItemType
 {
     Modification,
@@ -36,7 +31,7 @@ public class StoreItem
                 break;
             case ModificationType.MultiplyMultiplyValue:
                 name = "Желтая линза";
-                description = "Умножает базовый множитель на x2";
+                description = "Умножает количество снарядов в x2";
                 break;
             case ModificationType.RubberDuck:
                 name = "Уточка-уборщик";
@@ -44,7 +39,35 @@ public class StoreItem
                 break;
             case ModificationType.MoneyEqualsLife:
                 name = "Деньги - жизнь";
-                description = "Использует деньги, вместо HP";
+                description = "Использует деньги вместо HP";
+                break;
+            case ModificationType.MoveSpeedIncrease:
+                name = "Черная линза";
+                description = "Увеличивает скорость передвижения";
+                break;
+            case ModificationType.HealOnKill:
+                name = "Фиолетовая линза";
+                description = "Каждое убийство восстанавливает HP";
+                break;
+            // case ModificationType.BurnEffect:
+            //     name = "Огненная линза";
+            //     description = "Снаряды поджигают врагов, нанося урон со временем";
+            //     break;
+            // case ModificationType.KeepDistance:
+            //     name = "Линза контроля";
+            //     description = "Враги не могут подойти слишком близко";
+            //     break;
+            case ModificationType.ReflectDamage:
+                name = "Шипованная линза";
+                description = "Перенаправляет 20% урона через линзу";
+                break;
+            case ModificationType.DoubleDamageAndTaken:
+                name = "Проклятая линза";
+                description = "Удваивает весь урон (получаемый и наносимый)";
+                break;
+            case ModificationType.InvulnerabilityOnHit:
+                name = "Сумеречная линза";
+                description = "После получения урона даёт 0.5 сек. неуязвимости";
                 break;
             default:
                 name = "";
@@ -52,7 +75,7 @@ public class StoreItem
                 break;
         }
     }
-    
+
     public StoreItem()
     {
         type = StoreItemType.Skip;
@@ -66,4 +89,3 @@ public class StoreItem
         price = 999999999;
     }
 }
-

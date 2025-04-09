@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="ControlGuide.uss" />
+    <ui:VisualElement class="container">
+        <ui:VisualElement name="hints">
+            <ui:TextElement name="wasd" text="wasd - передвижение"/>
+            <ui:TextElement name="rmb" text="лкм - стрельба"/>
+            <ui:TextElement name="space" text="space - рывок"/>
+            <ui:TextElement name="p" text="p - пауза"/>
+            <ui:TextElement name="fe" text="f/e - взаимодействие"/>
+            <ui:TextElement name="g" text="g - сброс"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

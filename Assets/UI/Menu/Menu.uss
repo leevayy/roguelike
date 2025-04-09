@@ -1,0 +1,15 @@
+.container {
+    margin-top: -100px;
+    
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
+}
+
+#play {
+    margin-top: 20px;
+    
+    width: 100px;
+    border-radius: 15px;
+    border-width: 0;
+}

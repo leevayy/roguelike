@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="Menu.uss" />
+    <ui:VisualElement class="container">
+        <ui:TextElement text="alpha" />
+        <ui:Button name="play" text="Играть" />
+    </ui:VisualElement>
+</ui:UXML>

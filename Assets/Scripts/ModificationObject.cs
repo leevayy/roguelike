@@ -8,6 +8,11 @@ public class ModificationObject : MonoBehaviour
     [SerializeField] private Material multiplyMultiplyValueMaterial;
     [SerializeField] private Material rubberDuckMaterial;
     [SerializeField] private Material moneyEqualsLifeMaterial;
+    [SerializeField] private Material moveSpeedIncreaseMaterial;
+    [SerializeField] private Material healOnKillMaterial;
+    [SerializeField] private Material reflectDamageMaterial;
+    [SerializeField] private Material doubleDamageAndTakenMaterial;
+    [SerializeField] private Material invulnerabilityOnHitMaterial;
     
     public Modification mod { get; private set; }
     private bool _isInitialized;
@@ -37,6 +42,11 @@ public class ModificationObject : MonoBehaviour
             ModificationType.MultiplyMultiplyValue => multiplyMultiplyValueMaterial,
             ModificationType.RubberDuck => rubberDuckMaterial,
             ModificationType.MoneyEqualsLife => moneyEqualsLifeMaterial,
+            ModificationType.MoveSpeedIncrease => moveSpeedIncreaseMaterial,
+            ModificationType.HealOnKill => healOnKillMaterial,
+            ModificationType.ReflectDamage => reflectDamageMaterial,
+            ModificationType.DoubleDamageAndTaken => doubleDamageAndTakenMaterial,
+            ModificationType.InvulnerabilityOnHit => invulnerabilityOnHitMaterial,
             _ => meshRenderer.material
         };
     }

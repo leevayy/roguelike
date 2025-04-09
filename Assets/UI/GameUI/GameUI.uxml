@@ -11,10 +11,20 @@
                 <ui:TextElement class="timer" name="timer" text="00:00.000" />
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement>
-            <ui:TextElement class="hp" name="hp" text="❤️: 0" />
-            <ui:TextElement class="kills" name="kills" text="☠️: 0 (+$0)" />
-            <ui:TextElement class="score" name="score" text="$0" />
+        <ui:VisualElement class="top" >
+            <ui:VisualElement>
+                <ui:TextElement class="hp" name="hp" text="❤️: 0" />
+                <ui:TextElement class="kills" name="kills" text="☠️: 0 (+$0)" />
+                <ui:TextElement class="score" name="score" text="$0" />
+            </ui:VisualElement>
+            <ui:VisualElement>
+                <ui:TextElement name="lens" text="Линзы" />
+                <ui:TextElement name="lens-0" text="_" />
+                <ui:TextElement name="lens-1" text="_" />
+                <ui:TextElement name="lens-2" text="_" />
+                <ui:TextElement name="lens-3" text="_" />
+                <ui:TextElement name="lens-4" text="_" />
+            </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

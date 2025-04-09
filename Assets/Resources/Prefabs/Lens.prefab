@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 8241300324567988530}
   m_Layer: 0
   m_Name: Lens
-  m_TagString: Untagged
+  m_TagString: IgnoreAllyProjectile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -126,3 +126,8 @@ MonoBehaviour:
   multiplyMultiplyValueMaterial: {fileID: 2100000, guid: b9219b2ec1c2744b19684e120d0d9bad, type: 2}
   rubberDuckMaterial: {fileID: 2100000, guid: 083926fe861be463b93676d49e022f99, type: 2}
   moneyEqualsLifeMaterial: {fileID: 2100000, guid: fceb8bf6c09a54d5fac2b9c4833573e6, type: 2}
+  moveSpeedIncreaseMaterial: {fileID: 2100000, guid: 7cc4ec4596b7243c395f205cca128ddc, type: 2}
+  healOnKillMaterial: {fileID: 2100000, guid: e5c265de06bc041e4bb59a9d1bb5e082, type: 2}
+  reflectDamageMaterial: {fileID: 2100000, guid: 624d4d3909df14739af8b30195d0fbb3, type: 2}
+  doubleDamageAndTakenMaterial: {fileID: 2100000, guid: 84ca623fb8c4344568e907f75b89d38c, type: 2}
+  invulnerabilityOnHitMaterial: {fileID: 2100000, guid: 7d3b47a46740e4c35a69b5d890fc356f, type: 2}

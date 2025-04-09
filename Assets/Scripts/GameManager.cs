@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using TMPro;
 using UnityEngine;
@@ -17,17 +16,21 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TMP_Text secondFloor;
     [SerializeField] private GameObject rubberDuckPrefab;
     [FormerlySerializedAs("hit")] [SerializeField] private AudioSource hitSound;
+    
+    [SerializeField] private GameObject gameOverMenu;
+    
     [SerializeField] private AudioSource takeDamageSound;
     [SerializeField] private AudioSource takeDamage2Sound;
     [SerializeField] private AudioSource winSound;
+
     
     private GameObject _duck; 
     private readonly Vector3 _defaultMoneyBagScale = new(0.2f, 0.5f, 0.5f);
-    private int _goalNumber = 0;
+    private int _goalNumber;
 
-    private int _topDamage = 0;
-    private int _totalKills = 0;
-    private int _killCount = 0;
+    private int _topDamage;
+    private int _totalKills;
+    private int _killCount;
     private int killCount
     {
         get => _killCount;
@@ -54,7 +57,7 @@ public class GameManager : MonoBehaviour
         {
             winSound.Play();
             
-            if (!_duck && ModManager.instance.HasDuck())
+            if (!_duck && ModManager.instance.HasMod(ModificationType.RubberDuck))
             {
                 _duck = Instantiate(rubberDuckPrefab, transform);    
             }
@@ -77,8 +80,8 @@ public class GameManager : MonoBehaviour
                 enemySpawner.StopSpawning();
                 KillAll();
                 
-                var minPrice = 10f * _goalNumber * 2 + (_goalNumber - 2) * 200;
-                ShopManager.instance.RefreshStore(minPrice, minPrice + (_goalNumber - 2) * 300);
+                var minPrice = Mathf.Max(10f * _goalNumber * 1.5f + (_goalNumber - 2) * 100 - 75, 30);
+                ShopManager.instance.RefreshStore(minPrice, minPrice + (_goalNumber - 2) * 50);
                 
                 _ = DrawToExit();
             }
@@ -97,6 +100,12 @@ public class GameManager : MonoBehaviour
     }
     
     private int _score;
+
+    public GameManager()
+    {
+        _totalKills = 0;
+    }
+
     public int score
     {
         get => _score;
@@ -157,21 +166,22 @@ public class GameManager : MonoBehaviour
         firstFloor.gameObject.SetActive(false);
         secondFloor.text = "Купи хотя бы один предмет и возвращайся";
     }
-
+    
     private void Update()
     {
         timeElapsed += Time.deltaTime;
 
-        if (player.healthpoints < 0 || (score <= 0 && ModManager.instance.HasMoneyEqualsLife()))
+        if (player.healthpoints < 0 || (score <= 0 && ModManager.instance.HasMod(ModificationType.MoneyEqualsLife)))
         {
             ShowGameOverScreen(false);
         }
     }
 
     private void ShowGameOverScreen(bool isWin)
-    {
-        GameOverScreen.instance.ShowGameOverScreen(isWin, TimeFormatter.FormatTime(timeElapsed), Mathf.Max(_totalKills, _killCount), player.moneySpent, _topDamage);
+    { 
         Time.timeScale = 0;
+        gameOverMenu.SetActive(true);
+        GameOverScreen.instance.ShowGameOverScreen(isWin, TimeFormatter.FormatTime(timeElapsed), _totalKills + _killCount, player.moneySpent, _topDamage);
     }
 
     public void OnHit(HitInfo hitInfo, GameHitEntity gameHitEntity, Vector3 hitPoint)
@@ -208,9 +218,14 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    public void OnKill()
+    [ContextMenu(nameof(OnKill))] public void OnKill()
     {
         score += GetInterest() + Random.Range(7, 9);
+
+        if (ModManager.instance.HasMod(ModificationType.HealOnKill))
+        {
+            player.Heal(0.2f);
+        }
         
         killCount++;
     }
@@ -297,7 +312,7 @@ public class GameManager : MonoBehaviour
 
     private void StartFocus()
     {
-        _ = enemySpawner.SpawnEnemies(enemy =>
+        enemySpawner.SpawnEnemies(enemy =>
         {
             healthBarManager.AddHealthBar(100, enemy.gameObject);
             enemy.FocusEntity(player.gameObject);

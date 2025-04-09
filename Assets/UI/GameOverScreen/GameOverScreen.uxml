@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="GameOverScreen.uss" />
+    <ui:VisualElement name="container" class="container hidden">
+        <ui:VisualElement class="wrapper">
+            <ui:TextElement name="result" class="gap" text="Поражение" />
+            <ui:TextElement name="time" class="gap" text="--:--:--.---" />
+            <ui:TextElement name="moneySpent" class="gap" text="$0" />
+            <ui:VisualElement class="same-line gap">
+                <ui:TextElement name="kills" text="0" />
+                <ui:TextElement class="gap" name="topDamage" text="0" />
+            </ui:VisualElement>
+            <ui:TextElement class="gap" text="alpha" />
+            <ui:Button class="gap" name="restart" text="Начать заново" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

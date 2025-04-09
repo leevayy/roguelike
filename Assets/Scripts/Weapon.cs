@@ -36,7 +36,7 @@ public class Weapon : MonoBehaviour
 
         mods.Sort((mod1, mod2) => mod1.order - mod2.order);
 
-        var damageMods = mods.Where((mod) => mod.mod.type != ModificationType.RubberDuck && mod.mod.type != ModificationType.MoneyEqualsLife);
+        var damageMods = mods.Where((mod) => mod.mod.type is ModificationType.AddFlatValue or ModificationType.AddMultiplyValue);
 
         foreach (var modObject in damageMods)
         {
@@ -49,9 +49,6 @@ public class Weapon : MonoBehaviour
                     break;
                 case ModificationType.AddMultiplyValue:
                     multValue += mod.value;
-                    break;
-                case ModificationType.MultiplyMultiplyValue:
-                    multValue *= mod.value;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -87,6 +84,16 @@ public class Weapon : MonoBehaviour
 
     public void Shoot(Quaternion rotation)
     {
+        Shoot(rotation, GetDamage());
+    }
+    
+    public void ShootWithMultiply(Quaternion rotation, float multiplier)
+    {
+        Shoot(rotation, GetDamage() * multiplier);
+    }
+
+    public void Shoot(Quaternion rotation, float damage)
+    {
         if (_sinceLastShot < cooldown)
         {
             // jamSound.Play();
@@ -112,13 +119,20 @@ public class Weapon : MonoBehaviour
                 
             shootSound.Play();
             
-            var laser = Instantiate(laserPrefab, position + direction.normalized * 1.5f , rotation);
+            var damageMods = mods.Where((mod) => mod.mod.type == ModificationType.MultiplyMultiplyValue);
             
-            laser.transform.rotation = rotation;
+            var projectileCount = 1 * Mathf.Pow(2, damageMods.Count());
 
-            var laserScript = laser.GetComponent<Laser>();
+            for (var i = 0; i < projectileCount; i++)
+            {
+                var laser = Instantiate(laserPrefab, position + direction.normalized * 1.5f , rotation);
+                
+                laser.transform.rotation = rotation;
+
+                var laserScript = laser.GetComponent<Laser>();
             
-            laserScript.damage = GetDamage();
+                laserScript.damage = damage;
+            }
         }
     }
 }

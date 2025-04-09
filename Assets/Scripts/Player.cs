@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
 using utility;
@@ -11,6 +12,7 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject moneyBagPrefab;
     [SerializeField] private Hitbox hitbox;
     [SerializeField] private AudioSource dashSound;
+    [SerializeField] private AudioSource denyDamageSound;
     
     private const float Speed = 10f;
     private const float JumpForce = 2f;
@@ -25,6 +27,8 @@ public class Player : MonoBehaviour
     
     private float _maxHealthpoints = 100f;
     private float _healthpoints = 100f;
+    private float _sinceLastHit = 0f;
+    private List<GameObject> _modObjects = new();
     
     public int moneySpent { get; private set; }
 
@@ -49,27 +53,54 @@ public class Player : MonoBehaviour
     
         moneyBag = Instantiate(moneyBagPrefab, transform.position + moneyBagOffset, moneyBagRotation, transform);
         
-        hitbox.SetOnTriggerEnterHandler(((other, hitbox1) =>
+        hitbox.SetOnTriggerEnterHandler((other, hitbox1) =>
         {
             var isHitByEnemy = other.CompareTag("EnemyProjectile");
         
             if (isHitByEnemy)
             {
+                if (ModManager.instance.HasMod(ModificationType.InvulnerabilityOnHit) && _sinceLastHit < 0.5f)
+                {
+                    denyDamageSound.Play();
+                    return;
+                }
+                
+                _sinceLastHit = 0f;
+                
                 var collisionPoint = other.GetComponent<Collider>().ClosestPoint(transform.position);
 
                 var laserDamage = other.gameObject.GetComponent<Laser>().damage;
+                
+                if (ModManager.instance.HasMod(ModificationType.DoubleDamageAndTaken))
+                {
+                    laserDamage *= 2f;
+                }
             
                 GameManager.instance.OnHit(new HitInfo(GameHitEntity.Enemy, GetDamage(laserDamage)), GameHitEntity.Ally, collisionPoint);
+
+                if (ModManager.instance.HasMod(ModificationType.ReflectDamage))
+                {
+                    weapon.Shoot(transform.rotation, laserDamage * 0.2f);
+                }
             }
-        }));
+        });
     }
 
     private void Update()
     {
+        _sinceLastHit += Time.deltaTime;
+        
         var horizontalInput = Input.GetAxisRaw("Horizontal");
         var verticalInput = Input.GetAxisRaw("Vertical");
+
+        var compoundSpeed = Speed + additionalSpeed;
+
+        if (ModManager.instance.HasMod(ModificationType.MoveSpeedIncrease))
+        {   
+            compoundSpeed += 5f;
+        }
         
-        _moveInput = cam.transform.rotation * new Vector3(horizontalInput, 0, verticalInput).normalized * (Speed + additionalSpeed);
+        _moveInput = cam.transform.rotation * new Vector3(horizontalInput, 0, verticalInput).normalized * compoundSpeed;
 
         _isGrounded = Physics.Raycast(transform.position, Vector3.down, 1.1f);
 
@@ -83,7 +114,44 @@ public class Player : MonoBehaviour
 
         if (Input.GetButtonDown("Fire1"))
         {
-            weapon.Shoot(transform.rotation);
+            if (ModManager.instance.HasMod(ModificationType.DoubleDamageAndTaken))
+            {
+                weapon.ShootWithMultiply(transform.rotation, 2f);
+            }
+            else
+            {
+                weapon.Shoot(transform.rotation);
+            }
+        }
+
+        if (!ControlGuide.instance.isActive)
+        {
+            return;
+        }
+
+        if (_moveInput != Vector3.zero)
+        {
+            ControlGuide.instance.CompletedWasd();
+        }
+        
+        if (Input.GetButtonDown("Fire1"))
+        {
+            ControlGuide.instance.CompletedRmb();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            ControlGuide.instance.CompletedSpace();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
+        {
+            ControlGuide.instance.CompletedP();
+        }
+        
+        if (Input.GetKeyDown(KeyCode.G))
+        {
+            ControlGuide.instance.CompletedG();
         }
     }
 
@@ -125,24 +193,49 @@ public class Player : MonoBehaviour
 
         return damageIn;
     }
+    
+    [ContextMenu(nameof(FuckingInstantlyDie))] private float FuckingInstantlyDie()
+    {
+        return GetDamage(999999);
+    }
 
-    private void AddModification(Modification modification)
+    private void AddModification(Modification modification, string name)
     {
         var mod = Instantiate(modificationPrefab, weapon.transform);
         
+        _modObjects.Add(mod);
+        
         var modObject = mod.GetComponent<ModificationObject>();
         
+        GameUI.instance.UpdateMods(weapon.modifications.Count, name);
+
         weapon.AddModification(modObject, modification);
     }
 
     public void Heal()
     {
-        if (ModManager.instance.HasMoneyEqualsLife())
+        if (ModManager.instance.HasMod(ModificationType.MoneyEqualsLife))
         {
             GameManager.instance.score += (int)_maxHealthpoints;    
         }
         
         healthpoints = _maxHealthpoints;
+    }
+    
+    public void Heal(float part)
+    {
+        var healing = _maxHealthpoints * part;
+        
+        if (ModManager.instance.HasMod(ModificationType.MoneyEqualsLife))
+        {
+            GameManager.instance.score += (int)healing;
+            
+            return;
+        }
+        
+        var nextHealth = Mathf.Min(_maxHealthpoints, healthpoints + healing);
+        
+        healthpoints = nextHealth;
     }
 
     public bool BuyModification(StoreItem item)
@@ -151,21 +244,24 @@ public class Player : MonoBehaviour
         {
             return true;
         }
+
+        if (weapon.modifications.Count >= 5)
+        {
+            return false;
+        }
         
-        if (GameManager.instance.score > item.price || item.price == 0)
+        if (GameManager.instance.score >= item.price || item.price == 0)
         {
             GameManager.instance.score -= (int)item.price;
             moneySpent += (int)item.price;
             
             item.Buy();
-            AddModification(item.modification);
-            
+            AddModification(item.modification, item.name);
+
             return true;
         }
-        else
-        {
-            return false;
-        }
+
+        return false;
     }
 
     public ReadOnlyCollection<Modification> GetModifications()
@@ -175,6 +271,13 @@ public class Player : MonoBehaviour
 
     public ReadOnlyCollection<Modification> DropModifications()
     {
+        foreach (var modObject in _modObjects)
+        {
+            Destroy(modObject);
+        }
+        
+        _modObjects.Clear();
+
         return weapon.DropModifications();
     }
 }

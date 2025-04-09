@@ -14,10 +14,11 @@ public class EnemySpawner : MonoBehaviour
     [CanBeNull] private Action<EnemyInstance> _cachedOnSpawn;
     private Awaitable _currentAction;
     
-    public ReadOnlyCollection<EnemyInstance> enemies => this._instances.AsReadOnly();
+    public ReadOnlyCollection<EnemyInstance> enemies => _instances.AsReadOnly();
 
     private bool _isActive;
     private bool _shouldSpawn;
+    private bool _playerInside;
 
     private void Start()
     {
@@ -27,85 +28,96 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
-    public async Awaitable SpawnEnemies(Action<EnemyInstance> onSpawn)
+    // Step 1: Initialize the spawner, but do not start spawning
+    public void SpawnEnemies(Action<EnemyInstance> onSpawn)
     {
-        _isActive = true;
         _shouldSpawn = true;
         _cachedOnSpawn = onSpawn;
+    }
 
-        while (_isActive)
+    // Step 2: Spawning loop (called only when player is inside)
+    private async Awaitable StartSpawningLoop()
+    {
+        _isActive = true;
+
+        while (_isActive && _playerInside)
         {
-            var randomInterval = Random.Range(5f, 7f) / GameManager.instance.GetGoalNumber();
+            var goalNumber = GameManager.instance.GetGoalNumber();
+            var randomInterval = Random.Range(5f, 7f) / (6f / 9f * goalNumber);
 
-            try {
+            if (goalNumber == 1)
+            {
+                randomInterval = 4.2f;
+            }
 
+            try
+            {
                 _currentAction = Awaitable.WaitForSecondsAsync(randomInterval);
-            
                 await _currentAction;
             }
-            // can be cancelled so it's okay
             catch (OperationCanceledException)
             {
                 break;
             }
-            
-            SpawnEnemy(onSpawn);
+
+            if (_playerInside) // Ensure player is still inside
+            {
+                SpawnEnemy(_cachedOnSpawn);
+            }
         }
+
+        _isActive = false;
     }
-    
+
     public void StopSpawning()
     {
         _shouldSpawn = false;
         InternalStopSpawning();
     }
-    
+
     private void InternalStopSpawning()
     {
         _isActive = false;
-        
-        if (_currentAction == null) return;
-        
-        if (!_currentAction.IsCompleted)
+
+        if (_currentAction != null && !_currentAction.IsCompleted)
         {
             _currentAction.Cancel();
         }
     }
- 
+
     private void SpawnEnemy(Action<EnemyInstance> onSpawn)
     {
         var position = GameField.current.GetRandomPointWithin();
-        
         var enemy = Instantiate(enemyPrefab, position, transform.rotation);
-        
+
         _instances.Add(enemy);
 
-        enemy.onDispose = () =>
-        {
-            _instances.Remove(enemy);
-        };
+        enemy.onDispose = () => _instances.Remove(enemy);
 
-        onSpawn(enemy);
+        onSpawn?.Invoke(enemy);
     }
-    
+
     private void OnTriggerEnter(Collider other)
     {
         if (!_shouldSpawn) return;
-        
-        var isPlayer = other.CompareTag("Player");
+        if (!other.CompareTag("Player")) return;
 
-        if (isPlayer && !_isActive)
+        _playerInside = true;
+
+        if (!_isActive)
         {
-            StartCoroutine(SpawnEnemies(_cachedOnSpawn));
+            _ = StartSpawningLoop(); // Start spawning loop only when player enters
         }
     }
-    
+
     private void OnTriggerExit(Collider other)
     {
         if (!_shouldSpawn) return;
-        
-        var isPlayer = other.CompareTag("Player");
+        if (!other.CompareTag("Player")) return;
 
-        if (isPlayer && _isActive)
+        _playerInside = false;
+
+        if (_isActive)
         {
             InternalStopSpawning();
         }
