@@ -66,12 +66,12 @@ public class GameManager : MonoBehaviour
             {
                 ShowGameOverScreen(true);
             }
-
-            player.Heal();
             
             _goal = value;
             _goalNumber++;
             killCount = 0;
+
+            player.Heal();
             
             GameUI.instance.UpdateGoal(_goalNumber, value);
 
@@ -80,8 +80,7 @@ public class GameManager : MonoBehaviour
                 enemySpawner.StopSpawning();
                 KillAll();
                 
-                var minPrice = Mathf.Max(10f * _goalNumber * 1.5f + (_goalNumber - 2) * 100 - 75, 30);
-                ShopManager.instance.RefreshStore(minPrice, minPrice + (_goalNumber - 2) * 50);
+               RerollShop();
                 
                 _ = DrawToExit();
             }
@@ -122,8 +121,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                StartCoroutine(damagePopup.ShowDamagePopup($"-${moneyDiff}", moneyPosition));
-
+                StartCoroutine(damagePopup.ShowDamagePopup($"-${Mathf.Abs(moneyDiff)}", moneyPosition));
             }
             
             _score = value;
@@ -160,6 +158,8 @@ public class GameManager : MonoBehaviour
         StartFocus();
 
         player.moneyBag.transform.localScale = _defaultMoneyBagScale;
+        
+        healthBarManager.AddHealthBar(player.healthpoints, player.gameObject, "");
 
         goal = GetNextGoal(_goalNumber);
 
@@ -171,7 +171,7 @@ public class GameManager : MonoBehaviour
     {
         timeElapsed += Time.deltaTime;
 
-        if (player.healthpoints < 0 || (score <= 0 && ModManager.instance.HasMod(ModificationType.MoneyEqualsLife)))
+        if (player.healthpoints <= 0 || (score <= 0 && ModManager.instance.HasMod(ModificationType.MoneyEqualsLife)))
         {
             ShowGameOverScreen(false);
         }
@@ -184,13 +184,35 @@ public class GameManager : MonoBehaviour
         GameOverScreen.instance.ShowGameOverScreen(isWin, TimeFormatter.FormatTime(timeElapsed), _totalKills + _killCount, player.moneySpent, _topDamage);
     }
 
+    public void RerollShop()
+    {
+        // var minPrice = Mathf.Max(10f * _goalNumber * 1.5f + (_goalNumber - 2) * 100 - 75, 30);
+        const int minPrice = 300;
+        const int variety = 100;
+        var discount = _goalNumber switch
+        {
+            2 => 90,
+            3 => 60,
+            _ => 0
+        };
+
+        if (discount > 0)
+        {
+            ShopManager.instance.RefreshStore(minPrice, minPrice + variety, discount);
+        }
+        else
+        {
+            ShopManager.instance.RefreshStore(minPrice, minPrice + variety);
+        }
+    }
+
     public void OnHit(HitInfo hitInfo, GameHitEntity gameHitEntity, Vector3 hitPoint)
     {
         if (hitInfo.Source == GameHitEntity.Enemy && gameHitEntity == GameHitEntity.Ally)
         {
-            var pitch = 0.5f + Random.Range(0f, 1f);
+            var pitch = 0.7f + Random.Range(0f, 0.3f);
 
-            if (Random.value <= 0.7f)
+            if (Random.value <= 0.95f)
             {
                 takeDamageSound.pitch = pitch;
                 takeDamageSound.Play();
@@ -211,8 +233,11 @@ public class GameManager : MonoBehaviour
             _topDamage = Mathf.Max(_topDamage, (int)hitInfo.Damage);
             
             hitSound.Play();
-            
-            score += GetInterest();
+
+            // if (ShotManager.Instance.TryProcessHit(hitInfo.ShotId))
+            // {
+            //     score += GetInterest();
+            // }
 
             StartCoroutine(damagePopup.ShowDamagePopup(hitInfo.Damage, hitPoint));
         }
@@ -232,10 +257,12 @@ public class GameManager : MonoBehaviour
 
     private int GetInterest()
     {
-        var interest = (int)Math.Floor(score / 100f);
+        var interest = (int)Math.Floor(score / 15f);
         var interestPerKill = (int)Math.Floor(_killCount / 5f);
 
-        var moneyGained = interestPerKill + interest;
+        const int MAX_INTEREST = 20;
+
+        var moneyGained = Mathf.Min(interestPerKill + interest, MAX_INTEREST);
         
         return Mathf.Max(moneyGained, 0);
     }
@@ -255,17 +282,17 @@ public class GameManager : MonoBehaviour
 
     private void UpdatePlayerMass(float scoreValue)
     {
-        var mass = scoreValue / 500f;
+        var mass = 0.5f + 0.5f * (scoreValue / 1500f);
         
         var playerRb = player.GetComponent<Rigidbody>();
             
         playerRb.mass = Mathf.Max(1 + mass, 0.5f);
 
-        player.additionalSpeed = -1 * mass;
+        player.additionalSpeed = Mathf.Max(-1 * mass, 0);
 
         var scaleAddition = mass <= 4f 
             ? new Vector3(Mathf.Max(0.1f * mass, -1f), 0, 0)
-            : new Vector3(0.4f, 0, 0) + new Vector3(0.05f, 0.05f, 0.1f) * mass;
+            : new Vector3(0.4f, 0, 0) + new Vector3(0.005f, 0.005f, 0.025f) * mass;
         
         player.moneyBag.transform.localScale = _defaultMoneyBagScale + scaleAddition;
     }
@@ -283,8 +310,8 @@ public class GameManager : MonoBehaviour
                 
                 return new Goal(GoalType.KILL_N_ENEMIES, Random.Range(startN, endN) * nextGoalNumber);
             case GoalType.GET_SCORE_N:
-                const int startScore = 40;
-                const int endScore = 50;
+                const int startScore = 50;
+                const int endScore = 60;
                 
                 return new Goal(GoalType.GET_SCORE_N, score + Random.Range(startScore, endScore) * nextGoalNumber);
             
@@ -330,6 +357,11 @@ public class GameManager : MonoBehaviour
     
     [ContextMenu(nameof(GetRandomMod))] private void GetRandomMod()
     {
-        player.BuyModification(new StoreItem(new Modification(), 0));
+        player.BuyItem(new StoreItem(new Modification(), 0));
+    }
+    
+    [ContextMenu(nameof(GetFiveK))] private void GetFiveK()
+    {
+        score += 5000;
     }
 }

@@ -93,6 +93,14 @@ public class GameUI : MonoBehaviour
             _mods[lensIndex].text = lensName;
         }
     }
+    
+    public void ClearMods()
+    {
+        foreach (var t in _mods)
+        {
+            t.text = "_";
+        }
+    }
 
     private void CloneTop()
     {

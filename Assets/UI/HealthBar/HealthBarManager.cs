@@ -25,11 +25,15 @@ public class HealthBarManager : MonoBehaviour
 
     public void AddHealthBar(float health, GameObject holder)
     {
+        AddHealthBar(health, holder, holder.name);
+    }
+    public void AddHealthBar(float health, GameObject holder, string nameTag)
+    {
         var healthBar = healthBarTemplate.Instantiate();
      
         var nameLabel = healthBar.Q<Label>("name-tag");
 
-        nameLabel.text = holder.name;
+        nameLabel.text = nameTag;
         
         var label = healthBar.Q<Label>("health-tag") as Label;
 

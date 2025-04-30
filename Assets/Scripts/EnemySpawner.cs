@@ -43,7 +43,7 @@ public class EnemySpawner : MonoBehaviour
         while (_isActive && _playerInside)
         {
             var goalNumber = GameManager.instance.GetGoalNumber();
-            var randomInterval = Random.Range(5f, 7f) / (6f / 9f * goalNumber);
+            var randomInterval = Random.Range(5f, 7f) / (0.5f * goalNumber);
 
             if (goalNumber == 1)
             {

@@ -54,7 +54,7 @@
     left: 2px;
     bottom: 2px;
     
-    width: 100px;
+    width: 96px;
     height: 6px;
     
     background-color: rgb(181, 210, 248);

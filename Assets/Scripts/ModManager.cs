@@ -16,6 +16,11 @@ public class ModManager : MonoBehaviour
         return GameManager.instance.modifications.ToList().Exists(mod => mod.type == modType);
     }
     
+    public int CountMod(ModificationType modType)
+    {
+        return GameManager.instance.modifications.Count(mod => mod.type == modType);
+    }
+    
     private void Awake()
     {
         if (instance != null && instance != this)

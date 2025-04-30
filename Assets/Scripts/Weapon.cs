@@ -36,7 +36,7 @@ public class Weapon : MonoBehaviour
 
         mods.Sort((mod1, mod2) => mod1.order - mod2.order);
 
-        var damageMods = mods.Where((mod) => mod.mod.type is ModificationType.AddFlatValue or ModificationType.AddMultiplyValue);
+        var damageMods = mods.Where((mod) => mod.mod.type is ModificationType.AddFlatValue or ModificationType.AddMultiplyValue or ModificationType.DoubleDamageAndTaken);
 
         foreach (var modObject in damageMods)
         {
@@ -49,6 +49,9 @@ public class Weapon : MonoBehaviour
                     break;
                 case ModificationType.AddMultiplyValue:
                     multValue += mod.value;
+                    break;
+                case ModificationType.DoubleDamageAndTaken:
+                    multValue *= mod.value;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -123,6 +126,8 @@ public class Weapon : MonoBehaviour
             
             var projectileCount = 1 * Mathf.Pow(2, damageMods.Count());
 
+            var shotId = ShotManager.Instance.GenerateNewShotId();
+
             for (var i = 0; i < projectileCount; i++)
             {
                 var laser = Instantiate(laserPrefab, position + direction.normalized * 1.5f , rotation);
@@ -132,6 +137,8 @@ public class Weapon : MonoBehaviour
                 var laserScript = laser.GetComponent<Laser>();
             
                 laserScript.damage = damage;
+                
+                laserScript.shotId = shotId;
             }
         }
     }

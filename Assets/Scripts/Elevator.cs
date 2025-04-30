@@ -21,7 +21,16 @@ public class Elevator : MonoBehaviour
 
         if (!_isMoving && _timeOnThePlatform >= timeBeforeLeave)
         {
-            StartCoroutine(GoTo(_level == 2 ? 1 : 2));
+            Move();
+        }
+    }
+
+    private void Update()
+    {
+        if (!_isMoving && _timeOnThePlatform > 0 && (Input.GetKeyDown(KeyCode.E) ||
+            Input.GetKeyDown(KeyCode.F)))
+        {
+            Move();
         }
     }
 
@@ -30,9 +39,12 @@ public class Elevator : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             _timeOnThePlatform = 0f;
-            
-            MusicManager.instance.audioSource.UnPause();
         }
+    }
+
+    private void Move()
+    {
+        StartCoroutine(GoTo(_level == 2 ? 1 : 2));
     }
 
     public async Awaitable GoTo(int level)
@@ -64,5 +76,6 @@ public class Elevator : MonoBehaviour
         
         _level = level;
         _isMoving = false;
+        MusicManager.instance.audioSource.UnPause();
     }
 }

@@ -7,7 +7,9 @@ public class ShopManager : MonoBehaviour
 {
     [SerializeField] private GameObject buyBoxPrefab;
 
-    private readonly List<GameObject> _buyBoxes = new(); 
+    private readonly List<GameObject> _buyBoxes = new();
+    private bool _isPurchasedSomething;
+        
     public static ShopManager instance { get; private set; }
     
     private void Awake()
@@ -20,8 +22,8 @@ public class ShopManager : MonoBehaviour
 
         instance = this;
     }
-    
-    public void RefreshStore(float minPrice, float maxPrice)
+
+    public void RefreshStore(float minPrice, float maxPrice, int discount = 0)
     {
         _ = DestroyStoreItems(0f);
 
@@ -29,18 +31,20 @@ public class ShopManager : MonoBehaviour
         
         for (var i = 0; i < 3; i++)
         {
-            CreateModStoreItem(i, (int)Random.Range(minPrice, maxPrice));
+            CreateModStoreItem(i, (int)Random.Range(minPrice, maxPrice), discount);
         }
+        
+        CreateStoreItem(new StoreItem(StoreItemType.Reroll), 3);
     }
 
-    private void CreateModStoreItem(int order, float price)
+    private void CreateModStoreItem(int order, float price, int discount)
     {
-        CreateStoreItem(new StoreItem(new Modification(), price), order);
+        CreateStoreItem(new StoreItem(new Modification(), price, discount), order);
     }
 
     private void CreateSkipStoreItem()
     {
-        CreateStoreItem(new StoreItem(), -1);
+        CreateStoreItem(new StoreItem(StoreItemType.Skip), -1);
     }
     
     private void CreateStoreItem(StoreItem storeItem, int order)
@@ -51,21 +55,20 @@ public class ShopManager : MonoBehaviour
         
         priceTag.Init(storeItem, () =>
         {
-            // DeactivateStoreItems();
-            _ = DestroyStoreItems(3f);
+            _isPurchasedSomething = true;
             GameManager.instance.OnBuy();
         });
         
         _buyBoxes.Add(buyBox);
     }
     
-    private void DeactivateStoreItems()
-    {
-        _buyBoxes.ForEach((buyBox) =>
-        {
-            buyBox.GetComponentInChildren<PriceTag>().buyBox.Deactivate();
-        });
-    }
+    // private void DeactivateStoreItems()
+    // {
+    //     _buyBoxes.ForEach((buyBox) =>
+    //     {
+    //         buyBox.GetComponentInChildren<PriceTag>().buyBox.Deactivate();
+    //     });
+    // }
 
     private async Awaitable DestroyStoreItems(float delay)
     {
@@ -77,5 +80,15 @@ public class ShopManager : MonoBehaviour
         _buyBoxes.ForEach(Destroy);
         
         _buyBoxes.Clear();
+        
+        _isPurchasedSomething = false;
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (_isPurchasedSomething && other.CompareTag("Player"))
+        {
+            _ = DestroyStoreItems(5f);
+        }
     }
 }

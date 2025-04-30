@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 7922782965350916387}
   - component: {fileID: 804788647024026635}
   - component: {fileID: 5165313657599641672}
-  - component: {fileID: 4661848089878990850}
   - component: {fileID: 8241300324567988530}
   m_Layer: 0
   m_Name: Lens
@@ -88,27 +87,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &4661848089878990850
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3102776283713458581}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &8241300324567988530
 MonoBehaviour:
   m_ObjectHideFlags: 0

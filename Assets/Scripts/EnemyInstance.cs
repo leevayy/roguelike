@@ -50,9 +50,11 @@ public class EnemyInstance : MonoBehaviour
             {
                 var collisionPoint = other.GetComponent<Collider>().ClosestPoint(enemy.transform.position);
 
-                var laserDamage = other.GetComponent<Laser>().damage;
+                var laser = other.GetComponent<Laser>();
                 
-                GameManager.instance.OnHit(new HitInfo(GameHitEntity.Ally, GetDamage(laserDamage)), GameHitEntity.Enemy, collisionPoint);
+                var laserDamage = laser.damage;
+                
+                GameManager.instance.OnHit(new HitInfo(GameHitEntity.Ally, GetDamage(laserDamage), laser.shotId), GameHitEntity.Enemy, collisionPoint);
 
                 if (healthPoints <= 0)
                 {
@@ -72,6 +74,16 @@ public class EnemyInstance : MonoBehaviour
         {
             maxVerstappenSound.Play();
             enemy.SET_MAX_SPEED();
+        }
+    }
+
+    private void Update()
+    {
+        if (enemy && enemy.transform.position.y < -500)
+        {
+            Die(enemy.GetHitbox());
+            
+            Destroy(gameObject);
         }
     }
 
@@ -125,14 +137,15 @@ public class EnemyInstance : MonoBehaviour
         var startScale = Vector3.one;
         var targetScale = new Vector3(1.5f, 0.1f, 1.5f);
 
-        while (elapsedTime < duration)
+        while (this && elapsedTime < duration)
         {
             var t = elapsedTime / duration;
             this.transform.localScale = Vector3.Lerp(startScale, targetScale, t);
             elapsedTime += Time.deltaTime;
             await Awaitable.NextFrameAsync();
         }
-        this.transform.localScale = targetScale;
+        
+        if (this) this.transform.localScale = targetScale;
     }
         
     public void FocusEntity(GameObject entity)

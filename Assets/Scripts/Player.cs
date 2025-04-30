@@ -1,7 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using utility;
+using Random = UnityEngine.Random;
 
 public class Player : MonoBehaviour
 {
@@ -13,6 +16,7 @@ public class Player : MonoBehaviour
     [SerializeField] private Hitbox hitbox;
     [SerializeField] private AudioSource dashSound;
     [SerializeField] private AudioSource denyDamageSound;
+    [SerializeField] private float autoShotCooldown = 0.33f;
     
     private const float Speed = 10f;
     private const float JumpForce = 2f;
@@ -22,16 +26,19 @@ public class Player : MonoBehaviour
     public GameObject moneyBag { get; private set; }
     private Rigidbody _rb;
     private bool _isGrounded;
+    private bool _isExtendedLook;
     private Vector3 _moveInput;
     private Vector3 _cameraVelocity = Vector3.zero;
     
     private float _maxHealthpoints = 100f;
     private float _healthpoints = 100f;
     private float _sinceLastHit = 0f;
+    private float _sinceLastAutoShot = 0f;
     private List<GameObject> _modObjects = new();
     
     public int moneySpent { get; private set; }
-
+    public Action<float, float> onHealthPointsChanged { private get; set; }
+    
     public float healthpoints { 
         get => _healthpoints;
         private set
@@ -39,6 +46,8 @@ public class Player : MonoBehaviour
             _healthpoints = value;
             
             GameUI.instance.UpdateHp((int)value, (int)_maxHealthpoints);
+            
+            onHealthPointsChanged(value, _maxHealthpoints);
         } 
     }
 
@@ -47,7 +56,7 @@ public class Player : MonoBehaviour
     private void Start()
     {
         _rb = GetComponent<Rigidbody>();
-    
+        
         var moneyBagOffset = new Vector3(0, 0.1f, -0.7f);
         var moneyBagRotation = Quaternion.Euler(0, -90, 0);
     
@@ -69,18 +78,24 @@ public class Player : MonoBehaviour
                 
                 var collisionPoint = other.GetComponent<Collider>().ClosestPoint(transform.position);
 
-                var laserDamage = other.gameObject.GetComponent<Laser>().damage;
+                var laser = other.gameObject.GetComponent<Laser>();
                 
-                if (ModManager.instance.HasMod(ModificationType.DoubleDamageAndTaken))
+                var laserDamage = laser.damage;
+                
+                for (var i = 0; i < ModManager.instance.CountMod(ModificationType.DoubleDamageAndTaken); i++)
                 {
                     laserDamage *= 2f;
                 }
-            
-                GameManager.instance.OnHit(new HitInfo(GameHitEntity.Enemy, GetDamage(laserDamage)), GameHitEntity.Ally, collisionPoint);
 
-                if (ModManager.instance.HasMod(ModificationType.ReflectDamage))
+                GameManager.instance.OnHit(
+                    ModManager.instance.HasMod(ModificationType.MoneyEqualsLife)
+                        ? new HitInfo(GameHitEntity.Enemy, GetDamage(0), laser.shotId)
+                        : new HitInfo(GameHitEntity.Enemy, GetDamage(laserDamage), laser.shotId),
+                    GameHitEntity.Ally, collisionPoint);
+
+                for (var i = 0; i < ModManager.instance.CountMod(ModificationType.ReflectDamage); i++)
                 {
-                    weapon.Shoot(transform.rotation, laserDamage * 0.2f);
+                    weapon.Shoot(transform.rotation, laserDamage * 5f);
                 }
             }
         });
@@ -95,10 +110,7 @@ public class Player : MonoBehaviour
 
         var compoundSpeed = Speed + additionalSpeed;
 
-        if (ModManager.instance.HasMod(ModificationType.MoveSpeedIncrease))
-        {   
-            compoundSpeed += 5f;
-        }
+        compoundSpeed += 5f * ModManager.instance.CountMod(ModificationType.MoveSpeedIncrease);
         
         _moveInput = cam.transform.rotation * new Vector3(horizontalInput, 0, verticalInput).normalized * compoundSpeed;
 
@@ -114,13 +126,24 @@ public class Player : MonoBehaviour
 
         if (Input.GetButtonDown("Fire1"))
         {
-            if (ModManager.instance.HasMod(ModificationType.DoubleDamageAndTaken))
+            Shoot();
+        }
+        
+        if (Input.GetButtonUp("Fire1"))
+        {
+            _sinceLastAutoShot = 0f;
+        }
+
+        if (Input.GetButton("Fire1"))
+        {
+            if (_sinceLastAutoShot >= autoShotCooldown)
             {
-                weapon.ShootWithMultiply(transform.rotation, 2f);
+                _sinceLastAutoShot = 0f;
+                Shoot();
             }
             else
             {
-                weapon.Shoot(transform.rotation);
+                _sinceLastAutoShot += Time.deltaTime;
             }
         }
 
@@ -157,8 +180,8 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        _rb.linearVelocity = new Vector3(_moveInput.x, _rb.linearVelocity.y, _moveInput.z);
-
+        Move();
+        
         var mouseWorldPosition = GetMouseWorldPosition();
 
         if (debugPointer)
@@ -168,14 +191,50 @@ public class Player : MonoBehaviour
 
         transform.LookAt(new Vector3(mouseWorldPosition.x, transform.position.y, mouseWorldPosition.z));
     }
+
+    public void Move()
+    {
+        _rb.linearVelocity = new Vector3(_moveInput.x, _rb.linearVelocity.y, _moveInput.z);
+    }
+
+    public void OnDash(InputAction.CallbackContext context)
+    {
+        if (!_isGrounded || !context.started) return;
+        
+        dashSound.pitch = 1 + Random.Range(0f, 1f) + _rb.mass / 10;
+        dashSound.Play();
+        var jumpForce = new Vector3(_moveInput.x * DashMultiplier, JumpForce, _moveInput.z * DashMultiplier);
+        _rb.AddForce(jumpForce, ForceMode.Impulse);
+    }
+    
+    public void OnExtendedLook(InputAction.CallbackContext context)
+    {
+        _isExtendedLook = context.phase == InputActionPhase.Performed;
+    }
     
     private void LateUpdate()
     {
         if (SettingsManager.instance.cameraType == CameraMode.Static) return;
         
         var movementOffset = _moveInput / 4 + _rb.position;
-        
+
         var targetPosition = _cameraOffset + movementOffset;
+
+        if (_isExtendedLook)
+        {
+            const float extentionLength = 10f;
+            
+            var mouseWorldPosition = GetMouseWorldPosition();
+            
+            var mouseOffset = new Vector3(mouseWorldPosition.x, 0, mouseWorldPosition.z).normalized * extentionLength;
+
+            var nextTargetPosition = (targetPosition + _cameraOffset + mouseOffset) / 2;
+            
+            Debug.DrawLine(targetPosition, nextTargetPosition, Color.red);
+
+            targetPosition = nextTargetPosition;
+        }
+        
         cam.transform.position = Vector3.SmoothDamp(cam.transform.position, targetPosition, ref _cameraVelocity, 0.25f);
     }
 
@@ -199,6 +258,11 @@ public class Player : MonoBehaviour
         return GetDamage(999999);
     }
 
+    private void Shoot()
+    {
+        weapon.Shoot(transform.rotation);
+    }
+
     private void AddModification(Modification modification, string name)
     {
         var mod = Instantiate(modificationPrefab, weapon.transform);
@@ -212,25 +276,13 @@ public class Player : MonoBehaviour
         weapon.AddModification(modObject, modification);
     }
 
-    public void Heal()
-    {
-        if (ModManager.instance.HasMod(ModificationType.MoneyEqualsLife))
-        {
-            GameManager.instance.score += (int)_maxHealthpoints;    
-        }
-        
-        healthpoints = _maxHealthpoints;
-    }
-    
-    public void Heal(float part)
+    public void Heal(float part = 1)
     {
         var healing = _maxHealthpoints * part;
         
         if (ModManager.instance.HasMod(ModificationType.MoneyEqualsLife))
         {
             GameManager.instance.score += (int)healing;
-            
-            return;
         }
         
         var nextHealth = Mathf.Min(_maxHealthpoints, healthpoints + healing);
@@ -238,7 +290,7 @@ public class Player : MonoBehaviour
         healthpoints = nextHealth;
     }
 
-    public bool BuyModification(StoreItem item)
+    public bool BuyItem(StoreItem item)
     {
         if (item.type == StoreItemType.Skip)
         {
@@ -256,7 +308,15 @@ public class Player : MonoBehaviour
             moneySpent += (int)item.price;
             
             item.Buy();
-            AddModification(item.modification, item.name);
+
+            if (item.type == StoreItemType.Modification)
+            {
+                AddModification(item.modification, item.name);
+            }
+            else
+            {
+                GameManager.instance.RerollShop();
+            }
 
             return true;
         }
@@ -271,6 +331,8 @@ public class Player : MonoBehaviour
 
     public ReadOnlyCollection<Modification> DropModifications()
     {
+        GameUI.instance.ClearMods();
+        
         foreach (var modObject in _modObjects)
         {
             Destroy(modObject);

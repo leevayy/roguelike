@@ -19,7 +19,6 @@ public enum ModificationType
     InvulnerabilityOnHit
 }
 
-
 public class Modification
 {
     public ModificationType type { get; private set; }

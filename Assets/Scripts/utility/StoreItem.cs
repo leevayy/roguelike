@@ -1,7 +1,11 @@
+using System;
+using UnityEngine;
+
 public enum StoreItemType
 {
     Modification,
-    Skip
+    Skip,
+    Reroll
 }
 
 public class StoreItem
@@ -59,7 +63,7 @@ public class StoreItem
             //     break;
             case ModificationType.ReflectDamage:
                 name = "Шипованная линза";
-                description = "Перенаправляет 20% урона через линзу";
+                description = "Перенаправляет 500% получаемого урона";
                 break;
             case ModificationType.DoubleDamageAndTaken:
                 name = "Проклятая линза";
@@ -75,12 +79,33 @@ public class StoreItem
                 break;
         }
     }
-
-    public StoreItem()
+    
+    public StoreItem(Modification mod, float p, float discount) : this(mod, p)
     {
-        type = StoreItemType.Skip;
+        price = Mathf.Round(p * (100 - discount) / 100);
+        name += $"($-{discount}%)";
+    }
+
+    public StoreItem(StoreItemType itemType)
+    {
+        type = itemType;
         name = "";
-        description = "Пропустить";
+        switch (itemType)
+        {
+            case StoreItemType.Skip:
+                description = "Пропустить";
+                break;
+            case StoreItemType.Reroll:
+                description = "Обновить";
+                price = 50;
+                break;
+            case StoreItemType.Modification:
+                this.modification = new Modification();
+                price = 9999;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(itemType), itemType, null);
+        }
     }
 
     public void Buy()

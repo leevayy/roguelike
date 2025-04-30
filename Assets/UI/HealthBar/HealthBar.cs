@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 public class HealthBar : MonoBehaviour
@@ -8,12 +9,16 @@ public class HealthBar : MonoBehaviour
     [SerializeField] private Camera cam;
     [SerializeField] private Transform uiTransform;
     [SerializeField] private EnemyInstance enemyInstance;
-
+    [SerializeField] private Player player;
+    
+    [SerializeField] private bool isShowOnHoverDisabled;
+    [SerializeField] private bool isHpNumberHidden;
+    
     private VisualElement _healthBar;
     private VisualElement _health;
     private VisualElement _healthBarContainer;
     private UIDocument _baseContainerDocument;
-
+    
     private void Awake()
     {
         cam = Camera.main;
@@ -25,8 +30,21 @@ public class HealthBar : MonoBehaviour
         _baseContainerDocument = baseContainerDocument;
         _health = _healthBar.Q<VisualElement>("health");
         _healthBarContainer = _healthBar.Q<VisualElement>("healthBarContainer");
-        
-        enemyInstance.onHealthPointsChange = UpdateHealth;
+
+        if (enemyInstance)
+        {
+            enemyInstance.onHealthPointsChange = UpdateHealth;
+        }
+
+        if (player)
+        {
+            player.onHealthPointsChanged = UpdateHealth;
+        }
+
+        if (isShowOnHoverDisabled)
+        {
+            _healthBar.style.display = DisplayStyle.Flex;
+        }
     }
 
     private void Update()
@@ -57,7 +75,10 @@ public class HealthBar : MonoBehaviour
         var cursorPosition = Input.mousePosition;
         var distance = Vector2.Distance(new Vector2(screenPosition.x, screenPosition.y), cursorPosition);
 
-        _healthBar.style.display = distance <= 200 ? DisplayStyle.Flex : DisplayStyle.None;
+        if (!isShowOnHoverDisabled)
+        {
+            _healthBar.style.display = distance <= 400 ? DisplayStyle.Flex : DisplayStyle.None;
+        } 
     }
 
     private void UpdateHealth(float health, float maxHealth)
@@ -65,9 +86,11 @@ public class HealthBar : MonoBehaviour
         if (_healthBar == null) return;
         
         var isDead = health <= 0f;
+        
+        var nextHealth = health.ToString(CultureInfo.CurrentCulture);
 
-        _healthBar.Q<Label>("health-tag").text = isDead ? "💀" : health.ToString(CultureInfo.CurrentCulture);
-        _health.style.width = health / maxHealth * 100f;
+        _healthBar.Q<Label>("health-tag").text = isDead ? "💀" : isHpNumberHidden ? "" : nextHealth;
+        _health.style.width = health / maxHealth * 96f;
         
         if (isDead)
         {

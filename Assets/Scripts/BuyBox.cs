@@ -90,7 +90,7 @@ public class BuyBox : MonoBehaviour
             return;
         }
         
-        var isBought = player.BuyModification(_item);
+        var isBought = player.BuyItem(_item);
 
         if (isBought)
         {

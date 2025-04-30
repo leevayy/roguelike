@@ -23,11 +23,13 @@ namespace utility
     {
         public readonly GameHitEntity Source;
         public readonly float Damage;
+        public readonly int ShotId;
         
-        public HitInfo(GameHitEntity sourceEntity, float damageOut)
+        public HitInfo(GameHitEntity sourceEntity, float damageOut, int shotId)
         {
             Source = sourceEntity;
             Damage = damageOut;
+            ShotId = shotId;
         }
     }
 

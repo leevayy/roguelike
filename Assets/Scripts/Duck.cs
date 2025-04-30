@@ -95,7 +95,7 @@ public class Duck : MonoBehaviour
 
             if (!enemyScript.isAlive)
             {
-                Destroy(collision.gameObject);
+                Destroy(enemyScript.gameObject);
             }
         }
     }

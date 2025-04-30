@@ -8,7 +8,9 @@ public class Laser : MonoBehaviour
     [SerializeField] private float speed = 20f;
     [SerializeField] private float lifetime = 5f;
     [SerializeField] private Rigidbody rb;
+    
 
+    public int shotId { get; set; }
     public float damage { get; set; }
     public float applyBurn { get; set; }
 
