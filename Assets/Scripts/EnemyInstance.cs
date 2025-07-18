@@ -56,13 +56,19 @@ public class EnemyInstance : MonoBehaviour
                 
                 GameManager.instance.OnHit(new HitInfo(GameHitEntity.Ally, GetDamage(laserDamage), laser.shotId), GameHitEntity.Enemy, collisionPoint);
 
-                if (healthPoints <= 0)
+                if (laser.isBurn)
+                {
+                    ShotManager.Instance.TryProcessHit(laser.shotId);
+                    {
+                        _ = ApplyBurn((int)laserDamage / 2);
+                    }
+                }
+                
+                if (healthPoints <= 0) 
                 {
                     var hitDirection = other.GetComponent<Rigidbody>().linearVelocity.normalized;
                     
                     Throwback(hitDirection);
-
-                    GameManager.instance.OnKill();
                 }
             }
         });
@@ -89,9 +95,43 @@ public class EnemyInstance : MonoBehaviour
 
     private float GetDamage(float damageIn)
     {
-        healthPoints -= damageIn;
+        var nextHealthPoints = healthPoints - damageIn;
+        
+        if (nextHealthPoints <= 0 && isAlive)
+        {
+            GameManager.instance.OnKill();
+        }
+
+        healthPoints = nextHealthPoints;
         
         return damageIn;
+    }
+
+
+    private bool _isBurning;
+    private int _ticksLeft = 5;
+    
+    private async Awaitable ApplyBurn(int damagePerTick)
+    {
+        if (_isBurning)
+        {
+            _ticksLeft += 5;
+            return;
+        }
+        
+        _isBurning = true;
+        
+        for (var i = 0; i < _ticksLeft; i++)
+        {
+            if (!isAlive) break;
+            
+            await Awaitable.WaitForSecondsAsync(1);
+            
+            GameManager.instance.OnHit(new HitInfo(GameHitEntity.Ally, GetDamage(damagePerTick), -1), GameHitEntity.Enemy, enemy.gameObject.transform.position);
+        }
+
+        _ticksLeft = 5;
+        _isBurning = false;
     }
 
     public void Kill()
@@ -101,11 +141,11 @@ public class EnemyInstance : MonoBehaviour
 
     private void Die(Hitbox hitbox)
     {
+        if (!isAlive) return;
+        
         isAlive = false;
-                
-        enemy.PickTarget(null);
-                
-        enemy.StopMoving();
+
+        enemy.Die();
                 
         hitbox.enabled = false;
 

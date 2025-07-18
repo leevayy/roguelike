@@ -109,3 +109,4 @@ MonoBehaviour:
   reflectDamageMaterial: {fileID: 2100000, guid: 624d4d3909df14739af8b30195d0fbb3, type: 2}
   doubleDamageAndTakenMaterial: {fileID: 2100000, guid: 84ca623fb8c4344568e907f75b89d38c, type: 2}
   invulnerabilityOnHitMaterial: {fileID: 2100000, guid: 7d3b47a46740e4c35a69b5d890fc356f, type: 2}
+  burningMaterial: {fileID: 2100000, guid: a9daf9e91842b4b7294816bf693ee3aa, type: 2}

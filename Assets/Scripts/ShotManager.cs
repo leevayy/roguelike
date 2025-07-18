@@ -19,7 +19,6 @@ public class ShotManager : MonoBehaviour
                 {
                     GameObject singletonObject = new GameObject("ShotManager");
                     _instance = singletonObject.AddComponent<ShotManager>();
-                    Debug.Log("ShotManager instance created.");
                 }
             }
             return _instance;
@@ -105,7 +104,6 @@ public class ShotManager : MonoBehaviour
             {
                 _processedShotIds.Remove(id);
             }
-            Debug.Log($"ShotManager: Cleaned up {idsToRemove.Count} old Shot IDs.");
         }
     }
     /// <summary>
@@ -120,7 +118,6 @@ public class ShotManager : MonoBehaviour
         {
              _nextShotId = 1; // Reset or handle differently if needed
              // Consider clearing the _processedShotIds or using a different ID system (like Guid) if wrap-around is a concern.
-             Debug.LogWarning("Shot ID counter wrapped around!");
         }
         return _nextShotId;
     }
@@ -134,7 +131,6 @@ public class ShotManager : MonoBehaviour
     public void ClearProcessedIds()
     {
         _processedShotIds.Clear();
-        Debug.Log("Cleared processed Shot IDs.");
     }
 
     // Optional: Method to remove a specific ID if needed (e.g., after a delay)

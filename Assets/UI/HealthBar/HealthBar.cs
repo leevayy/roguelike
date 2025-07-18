@@ -38,7 +38,7 @@ public class HealthBar : MonoBehaviour
 
         if (player)
         {
-            player.onHealthPointsChanged = UpdateHealth;
+            player.OnHealthPointsChanged = UpdateHealth;
         }
 
         if (isShowOnHoverDisabled)

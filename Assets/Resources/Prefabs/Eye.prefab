@@ -30,9 +30,9 @@ Transform:
   m_GameObject: {fileID: 9131306061112969032}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.3, z: 0.1}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.99999994, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -122,12 +122,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51148f67cfa3442e3875b92988df0bad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  laserPrefab: {fileID: 8911935830684726184, guid: e01d2bb931a7e40749bfe882c03a36f0, type: 3}
+  laserPrefab: {fileID: 4710068586954920917, guid: 4d0b81db6b92245b9be03a9b09abb231, type: 3}
   dummy: {fileID: 0}
   flatDamage: 10
   cooldown: 0.1
   mods: []
   shootSound: {fileID: 4667151011036083401}
+  isOwnerPlayer: 1
 --- !u!82 &4667151011036083401
 AudioSource:
   m_ObjectHideFlags: 0
@@ -141,7 +142,7 @@ AudioSource:
   m_audioClip: {fileID: 8300000, guid: 0a238a7c115fa4364acc7a4d909d0bda, type: 3}
   m_Resource: {fileID: 8300000, guid: 0a238a7c115fa4364acc7a4d909d0bda, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.5
+  m_Volume: 0.8
   m_Pitch: -2.09
   Loop: 0
   Mute: 0

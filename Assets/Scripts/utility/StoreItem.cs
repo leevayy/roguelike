@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using utility;
 
 public enum StoreItemType
 {
@@ -53,14 +54,14 @@ public class StoreItem
                 name = "Фиолетовая линза";
                 description = "Каждое убийство восстанавливает HP";
                 break;
-            // case ModificationType.BurnEffect:
-            //     name = "Огненная линза";
-            //     description = "Снаряды поджигают врагов, нанося урон со временем";
-            //     break;
-            // case ModificationType.KeepDistance:
-            //     name = "Линза контроля";
-            //     description = "Враги не могут подойти слишком близко";
-            //     break;
+            case ModificationType.BurnEffect:
+                name = "Огненная линза";
+                description = "Снаряды поджигают врагов";
+                break;
+            case ModificationType.GhostLaser:
+                name = "Призрачная линза";
+                description = "Проходят насквозь";
+                break;
             case ModificationType.ReflectDamage:
                 name = "Шипованная линза";
                 description = "Перенаправляет 500% получаемого урона";
@@ -71,8 +72,12 @@ public class StoreItem
                 break;
             case ModificationType.InvulnerabilityOnHit:
                 name = "Сумеречная линза";
-                description = "После получения урона даёт 0.5 сек. неуязвимости";
+                description = "После получения урона даёт 1 сек. неуязвимости";
                 break;
+            // case ModificationType.GlassLens:
+            //     name = "Хрупкая линза";
+            //     description = "Значительно увеличивает урон, может разбиться";
+            //     break;
             default:
                 name = "";
                 description = "";

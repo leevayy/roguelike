@@ -345,6 +345,9 @@ MonoBehaviour:
   cam: {fileID: 0}
   uiTransform: {fileID: 5030505967760057022}
   enemyInstance: {fileID: 3071785544850525210}
+  player: {fileID: 0}
+  isShowOnHoverDisabled: 0
+  isHpNumberHidden: 0
 --- !u!1 &8561375365146949393
 GameObject:
   m_ObjectHideFlags: 0
@@ -542,6 +545,18 @@ PrefabInstance:
     m_TransformParent: {fileID: 3609166899820941928}
     m_Modifications:
     - target: {fileID: 2934041034500893072, guid: 872290e45e6434fed8fa5edb8ec86ab6, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2934041034500893072, guid: 872290e45e6434fed8fa5edb8ec86ab6, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2934041034500893072, guid: 872290e45e6434fed8fa5edb8ec86ab6, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2934041034500893072, guid: 872290e45e6434fed8fa5edb8ec86ab6, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -585,6 +600,10 @@ PrefabInstance:
       propertyPath: dummy
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 3957107780501549717, guid: 872290e45e6434fed8fa5edb8ec86ab6, type: 3}
+      propertyPath: laserPrefab
+      value: 
+      objectReference: {fileID: 8911935830684726184, guid: e01d2bb931a7e40749bfe882c03a36f0, type: 3}
     - target: {fileID: 4667151011036083401, guid: 872290e45e6434fed8fa5edb8ec86ab6, type: 3}
       propertyPath: m_Volume
       value: 0.2
@@ -635,12 +654,16 @@ PrefabInstance:
       value: Hitbox
       objectReference: {fileID: 0}
     - target: {fileID: 6166842738568416855, guid: fc8cfcd5bf2664aa999852a0a502df03, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6166842738568416855, guid: fc8cfcd5bf2664aa999852a0a502df03, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6166842738568416855, guid: fc8cfcd5bf2664aa999852a0a502df03, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.92
       objectReference: {fileID: 0}
     - target: {fileID: 6166842738568416855, guid: fc8cfcd5bf2664aa999852a0a502df03, type: 3}
       propertyPath: m_LocalPosition.z

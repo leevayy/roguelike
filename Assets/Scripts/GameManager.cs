@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Serialization;
 using utility;
@@ -8,7 +9,8 @@ using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private Player player;  
+    [SerializeField] private Player player;
+    public Player Player => player;
     [SerializeField] private EnemySpawner enemySpawner;
     [SerializeField] private DamagePopup damagePopup;
     [SerializeField] private HealthBarManager healthBarManager;
@@ -22,13 +24,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private AudioSource takeDamageSound;
     [SerializeField] private AudioSource takeDamage2Sound;
     [SerializeField] private AudioSource winSound;
-
     
     private GameObject _duck; 
     private readonly Vector3 _defaultMoneyBagScale = new(0.2f, 0.5f, 0.5f);
     private int _goalNumber;
 
-    private int _topDamage;
+    private int _totalDamage;
     private int _totalKills;
     private int _killCount;
     private int killCount
@@ -156,10 +157,10 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         StartFocus();
-
-        player.moneyBag.transform.localScale = _defaultMoneyBagScale;
         
-        healthBarManager.AddHealthBar(player.healthpoints, player.gameObject, "");
+        player.AfterStart += p => p.MoneyBag.transform.localScale = _defaultMoneyBagScale; 
+        
+        healthBarManager.AddHealthBar(player.Healthpoints, player.gameObject, "");
 
         goal = GetNextGoal(_goalNumber);
 
@@ -171,7 +172,7 @@ public class GameManager : MonoBehaviour
     {
         timeElapsed += Time.deltaTime;
 
-        if (player.healthpoints <= 0 || (score <= 0 && ModManager.instance.HasMod(ModificationType.MoneyEqualsLife)))
+        if (player.Healthpoints <= 0 || (score <= 0 && ModManager.instance.HasMod(ModificationType.MoneyEqualsLife)))
         {
             ShowGameOverScreen(false);
         }
@@ -181,7 +182,7 @@ public class GameManager : MonoBehaviour
     { 
         Time.timeScale = 0;
         gameOverMenu.SetActive(true);
-        GameOverScreen.instance.ShowGameOverScreen(isWin, TimeFormatter.FormatTime(timeElapsed), _totalKills + _killCount, player.moneySpent, _topDamage);
+        GameOverScreen.instance.ShowGameOverScreen(isWin, TimeFormatter.FormatTime(timeElapsed), _totalKills + _killCount, player.MoneySpent, _totalDamage);
     }
 
     public void RerollShop()
@@ -224,20 +225,25 @@ public class GameManager : MonoBehaviour
             }
             
             var moneyLost = Mathf.Max((int)hitInfo.Damage / 10, 8);
+            
+            if (ModManager.instance.HasMod(ModificationType.MoneyEqualsLife))
+            {
+                moneyLost = (int)Mathf.Round(hitInfo.Damage * 0.8f);
+            }
+
+            // if (ModManager.instance.HasMod(ModificationType.GlassLens))
+            // {
+            //     player.RemoveModification(ModificationType.GlassLens);
+            // }
 
             score -= moneyLost;
         }
 
         if (hitInfo.Source == GameHitEntity.Ally && gameHitEntity == GameHitEntity.Enemy)
         {
-            _topDamage = Mathf.Max(_topDamage, (int)hitInfo.Damage);
+            _totalDamage += (int)hitInfo.Damage;
             
             hitSound.Play();
-
-            // if (ShotManager.Instance.TryProcessHit(hitInfo.ShotId))
-            // {
-            //     score += GetInterest();
-            // }
 
             StartCoroutine(damagePopup.ShowDamagePopup(hitInfo.Damage, hitPoint));
         }
@@ -260,9 +266,9 @@ public class GameManager : MonoBehaviour
         var interest = (int)Math.Floor(score / 15f);
         var interestPerKill = (int)Math.Floor(_killCount / 5f);
 
-        const int MAX_INTEREST = 20;
+        const int maxInterest = 20;
 
-        var moneyGained = Mathf.Min(interestPerKill + interest, MAX_INTEREST);
+        var moneyGained = Mathf.Min(interestPerKill + interest, maxInterest);
         
         return Mathf.Max(moneyGained, 0);
     }
@@ -288,13 +294,13 @@ public class GameManager : MonoBehaviour
             
         playerRb.mass = Mathf.Max(1 + mass, 0.5f);
 
-        player.additionalSpeed = Mathf.Max(-1 * mass, 0);
+        player.SetAdditionalSpeed(Mathf.Max(-1 * mass, 0));
 
         var scaleAddition = mass <= 4f 
             ? new Vector3(Mathf.Max(0.1f * mass, -1f), 0, 0)
             : new Vector3(0.4f, 0, 0) + new Vector3(0.005f, 0.005f, 0.025f) * mass;
         
-        player.moneyBag.transform.localScale = _defaultMoneyBagScale + scaleAddition;
+        player.MoneyBag.transform.localScale = _defaultMoneyBagScale + scaleAddition;
     }
 
     private Goal GetNextGoal(int goalNumber)

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
+using utility;
 using Random = UnityEngine.Random;
 
 [System.Serializable]
@@ -15,6 +16,7 @@ public class Weapon : MonoBehaviour
     [SerializeField] private float cooldown = 0.2f;
     [SerializeField] private List<ModificationObject> mods;
     [SerializeField] private AudioSource shootSound;
+    [SerializeField] private bool isOwnerPlayer;
     // [SerializeField] private AudioSource jamSound;
     
     private float _sinceLastShot;
@@ -53,6 +55,9 @@ public class Weapon : MonoBehaviour
                 case ModificationType.DoubleDamageAndTaken:
                     multValue *= mod.value;
                     break;
+                // case ModificationType.GlassLens:
+                //     multValue += mod.value;
+                //     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -76,6 +81,11 @@ public class Weapon : MonoBehaviour
         mods.Add(mod);
     }
 
+    public void RemoveModificationsOfType(ModificationType type)
+    {
+        mods.RemoveAll(mod => mod.mod.type == type);
+    }
+    
     public ReadOnlyCollection<Modification> DropModifications()
     {
         var oldMods = modifications; 
@@ -135,10 +145,22 @@ public class Weapon : MonoBehaviour
                 laser.transform.rotation = rotation;
 
                 var laserScript = laser.GetComponent<Laser>();
-            
+
                 laserScript.damage = damage;
                 
                 laserScript.shotId = shotId;
+
+                if (!isOwnerPlayer) continue;
+                
+                if (ModManager.instance.HasMod(ModificationType.BurnEffect))
+                {
+                    laserScript.isBurn = true;
+                }
+                    
+                if (ModManager.instance.HasMod(ModificationType.GhostLaser))
+                {
+                    laserScript.isSolid = true;
+                }
             }
         }
     }

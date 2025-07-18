@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using utility;
 
 public class ModificationObject : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class ModificationObject : MonoBehaviour
     [SerializeField] private Material reflectDamageMaterial;
     [SerializeField] private Material doubleDamageAndTakenMaterial;
     [SerializeField] private Material invulnerabilityOnHitMaterial;
+    [SerializeField] private Material burningMaterial;
     
     public Modification mod { get; private set; }
     private bool _isInitialized;
@@ -47,6 +49,7 @@ public class ModificationObject : MonoBehaviour
             ModificationType.ReflectDamage => reflectDamageMaterial,
             ModificationType.DoubleDamageAndTaken => doubleDamageAndTakenMaterial,
             ModificationType.InvulnerabilityOnHit => invulnerabilityOnHitMaterial,
+            ModificationType.BurnEffect => burningMaterial,
             _ => meshRenderer.material
         };
     }
