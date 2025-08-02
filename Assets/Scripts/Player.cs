@@ -19,7 +19,7 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject moneyBagAnchor;
     [SerializeField] private Hitbox hitbox;
     [SerializeField] private AudioSource dashSound;
-    [SerializeField] private AudioSource denyDamageSound;
+    [SerializeField] public AudioSource denyDamageSound;
     [SerializeField] private float autoShotCooldown = 0.33f;
     private readonly Vector3 _cameraOffset = new(-15, 12, -15);
     
@@ -61,6 +61,7 @@ public class Player : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody>();
         _movementManager = GetComponent<MovementManager>();
+        _movementManager.modManager = modManager;
         _characterAnimationController = GetComponent<CharacterAnimationController>();
         _ragdollController = GetComponent<RagdollController>();
         modManager = gameObject.AddComponent<ComposableModificationManager>();
@@ -73,31 +74,19 @@ public class Player : MonoBehaviour
         hitbox.SetOnTriggerEnterHandler((other, _) =>
         {
             var isHitByEnemy = other.CompareTag("EnemyProjectile");
-
             if (!isHitByEnemy) return;
-            
-            if (modManager.HasMod(ModificationType.InvulnerabilityOnHit) && _sinceLastHit < 1f)
-            {
-                denyDamageSound.Play();
-                return;
-            }
-                
-            _sinceLastHit = 0f;
-                
-            var collisionPoint = other.GetComponent<Collider>().ClosestPoint(transform.position);
 
             var laser = other.gameObject.GetComponent<Laser>();
+            var damage = GetDamage(laser.damage);
 
+            // If damage was negated, don't trigger hit
+            if (damage <= 0) return;
+
+            var collisionPoint = other.GetComponent<Collider>().ClosestPoint(transform.position);
             GameManager.instance.OnHit(
-                modManager.HasMod(ModificationType.MoneyEqualsLife)
-                    ? new HitInfo(GameHitEntity.Enemy, laser.damage, laser.shotId)
-                    : new HitInfo(GameHitEntity.Enemy, GetDamage(laser.damage), laser.shotId),
-                GameHitEntity.Ally, collisionPoint);
-
-            for (var i = 0; i < modManager.CountMod(ModificationType.ReflectDamage); i++)
-            {
-                weapon.Shoot(transform.rotation, laser.damage * 5f, modManager.GetModifications());
-            }
+                new HitInfo(GameHitEntity.Enemy, damage, laser.shotId),
+                GameHitEntity.Ally,
+                collisionPoint);
         });
 
         AfterStart?.Invoke(this);
@@ -113,6 +102,8 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        modManager.ApplyOnUpdate(this);
+
         if (Input.GetKeyDown(KeyCode.K))
         {
             _ragdollController.Die();
@@ -221,14 +212,11 @@ public class Player : MonoBehaviour
     
     private float GetDamage(float damageIn)
     {
-        for (var i = 0; i < modManager.CountMod(ModificationType.DoubleDamageAndTaken); i++)
-        {
-            damageIn *= 2f;
-        }
-        
-        Healthpoints -= damageIn;
+        var modifiedDamage = modManager.ModifyIncomingDamage(this, damageIn);
 
-        return damageIn;
+        Healthpoints -= modifiedDamage;
+
+        return modifiedDamage;
     }
     
     [ContextMenu(nameof(FuckingInstantlyDie))] private float FuckingInstantlyDie()
@@ -238,7 +226,12 @@ public class Player : MonoBehaviour
 
     private void Shoot()
     {
-        weapon.Shoot(transform.rotation, modManager.GetModifications());
+        var projectileCount = modManager.GetProjectileCount(1);
+        for (var i = 0; i < projectileCount; i++)
+        {
+            weapon.Shoot(transform.rotation, modManager.GetModifications());
+        }
+        modManager.ApplyOnShoot(weapon, 0); // The damage is calculated in the weapon
         _characterAnimationController.FireAnimation();
     }
 
@@ -256,11 +249,6 @@ public class Player : MonoBehaviour
     public void Heal(float part = 1)
     {
         var healing = _maxHealthpoints * part;
-        
-        if (modManager.HasMod(ModificationType.MoneyEqualsLife))
-        {
-            GameManager.instance.score += (int)healing;
-        }
         
         var nextHealth = Mathf.Min(_maxHealthpoints, Healthpoints + healing);
         

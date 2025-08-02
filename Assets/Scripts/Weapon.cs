@@ -29,33 +29,12 @@ public class Weapon : MonoBehaviour
 
     private float GetDamage(ReadOnlyCollection<Modification> modifications)
     {
-        var flatValue = flatDamage;
-        var multValue = 1f;
-
-        var damageMods = modifications.Where((mod) => mod.type is ModificationType.AddFlatValue or ModificationType.AddMultiplyValue or ModificationType.DoubleDamageAndTaken);
-
-        foreach (var mod in damageMods)
+        var modifiedDamage = flatDamage;
+        foreach (var mod in modifications)
         {
-            switch (mod.type)
-            {
-                case ModificationType.AddFlatValue:
-                    flatValue += mod.value;
-                    break;
-                case ModificationType.AddMultiplyValue:
-                    multValue += mod.value;
-                    break;
-                case ModificationType.DoubleDamageAndTaken:
-                    multValue *= mod.value;
-                    break;
-                // case ModificationType.GlassLens:
-                //     multValue += mod.value;
-                //     break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            modifiedDamage = mod.Strategy.GetModifiedValue(modifiedDamage);
         }
-        
-        return flatValue * multValue;
+        return modifiedDamage;
     }
 
     private void Update()
@@ -68,15 +47,28 @@ public class Weapon : MonoBehaviour
 
     public void Shoot(Quaternion rotation, ReadOnlyCollection<Modification> modifications)
     {
-        Shoot(rotation, GetDamage(modifications), modifications);
+        var damage = GetDamage(modifications);
+        var projectileCount = 1;
+        foreach (var mod in modifications)
+        {
+            projectileCount = mod.Strategy.GetProjectileCount(projectileCount);
+        }
+
+        Shoot(rotation, damage, modifications, projectileCount);
     }
     
     public void ShootWithMultiply(Quaternion rotation, float multiplier, ReadOnlyCollection<Modification> modifications)
     {
-        Shoot(rotation, GetDamage(modifications) * multiplier, modifications);
+        var damage = GetDamage(modifications) * multiplier;
+        var projectileCount = 1;
+        foreach (var mod in modifications)
+        {
+            projectileCount = mod.Strategy.GetProjectileCount(projectileCount);
+        }
+        Shoot(rotation, damage, modifications, projectileCount);
     }
 
-    public void Shoot(Quaternion rotation, float damage, ReadOnlyCollection<Modification> modifications)
+    public void Shoot(Quaternion rotation, float damage, ReadOnlyCollection<Modification> modifications, int projectileCount = 1)
     {
         if (_sinceLastShot < cooldown)
         {
@@ -103,8 +95,6 @@ public class Weapon : MonoBehaviour
                 
             shootSound.Play();
             
-            var projectileCount = 1 * Mathf.Pow(2, modifications.Count(mod => mod.type == ModificationType.MultiplyMultiplyValue));
-
             var shotId = ShotManager.Instance.GenerateNewShotId();
 
             for (var i = 0; i < projectileCount; i++)
@@ -121,14 +111,9 @@ public class Weapon : MonoBehaviour
 
                 if (!isOwnerPlayer) continue;
 
-                if (modifications.Any(mod => mod.type == ModificationType.BurnEffect))
+                foreach (var mod in modifications)
                 {
-                    laserScript.isBurn = true;
-                }
-
-                if (modifications.Any(mod => mod.type == ModificationType.GhostLaser))
-                {
-                    laserScript.isSolid = true;
+                    mod.Strategy.ApplyOnShoot(this, damage);
                 }
             }
         }

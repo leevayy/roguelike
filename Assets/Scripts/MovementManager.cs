@@ -13,6 +13,7 @@ public class MovementManager : MonoBehaviour
     public Vector3 MoveVector => _moveVector;
     
     public float additionalSpeed;
+    public ComposableModificationManager modManager;
 
     public void Tick(Vector3 moveInput)
     {
@@ -30,7 +31,10 @@ public class MovementManager : MonoBehaviour
     {
         var compoundSpeed = Speed + additionalSpeed;
 
-        compoundSpeed += 5f * ModManager.instance.CountMod(ModificationType.MoveSpeedIncrease);
+        if (modManager != null)
+        {
+            compoundSpeed = modManager.GetModifiedValue(compoundSpeed, ModificationType.MoveSpeedIncrease);
+        }
 
         return moveInput * compoundSpeed;
     }

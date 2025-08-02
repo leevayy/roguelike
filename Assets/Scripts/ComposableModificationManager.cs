@@ -13,14 +13,9 @@ public class ComposableModificationManager : MonoBehaviour
         _modifications.Add(modification);
     }
 
-    public void RemoveModification(Modification modification)
-    {
-        _modifications.Remove(modification);
-    }
-
     public void RemoveAllModifiersOfType(ModificationType type)
     {
-        _modifications.RemoveAll(mod => mod.type == type);
+        _modifications.RemoveAll(mod => mod.Type == type);
     }
 
     public ReadOnlyCollection<Modification> GetModifications()
@@ -35,34 +30,68 @@ public class ComposableModificationManager : MonoBehaviour
 
     public bool HasMod(ModificationType modType)
     {
-        return _modifications.Exists(mod => mod.type == modType);
+        return _modifications.Exists(mod => mod.Type == modType);
     }
 
     public int CountMod(ModificationType modType)
     {
-        return _modifications.Count(mod => mod.type == modType);
+        return _modifications.Count(mod => mod.Type == modType);
+    }
+
+    // --- New Hook-based Methods ---
+
+    public void ApplyOnUpdate(Player player)
+    {
+        foreach (var mod in _modifications)
+        {
+            mod.Strategy.ApplyOnUpdate(player);
+        }
+    }
+
+    public void ApplyOnKill(Player player)
+    {
+        foreach (var mod in _modifications)
+        {
+            mod.Strategy.ApplyOnKill(player);
+        }
+    }
+
+    public void ApplyOnShoot(Weapon weapon, float damage)
+    {
+        foreach (var mod in _modifications)
+        {
+            mod.Strategy.ApplyOnShoot(weapon, damage);
+        }
+    }
+
+    public float ModifyIncomingDamage(Player player, float damage)
+    {
+        var modifiedDamage = damage;
+        foreach (var mod in _modifications)
+        {
+            modifiedDamage = mod.Strategy.ModifyIncomingDamage(player, modifiedDamage);
+        }
+        return modifiedDamage;
     }
 
     public float GetModifiedValue(float baseValue, ModificationType type)
     {
-        var mods = _modifications.Where(mod => mod.type == type).ToList();
-        if (mods.Count == 0)
-        {
-            return baseValue;
-        }
-
-        var result = baseValue;
+        var modifiedValue = baseValue;
+        var mods = _modifications.Where(mod => mod.Type == type);
         foreach (var mod in mods)
         {
-            result = mod.type switch
-            {
-                ModificationType.AddFlatValue => result + mod.value,
-                ModificationType.AddMultiplyValue => result * mod.value,
-                ModificationType.MultiplyMultiplyValue => result * mod.value,
-                _ => result
-            };
+            modifiedValue = mod.Strategy.GetModifiedValue(modifiedValue);
         }
+        return modifiedValue;
+    }
 
-        return result;
+    public int GetProjectileCount(int baseCount)
+    {
+        var modifiedCount = baseCount;
+        foreach (var mod in _modifications)
+        {
+            modifiedCount = mod.Strategy.GetProjectileCount(modifiedCount);
+        }
+        return modifiedCount;
     }
 }

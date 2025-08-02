@@ -170,7 +170,7 @@ public class GameManager : MonoBehaviour
     {
         timeElapsed += Time.deltaTime;
 
-        if (player.Healthpoints <= 0 || (score <= 0 && player.modManager.HasMod(ModificationType.MoneyEqualsLife)))
+        if (player.Healthpoints <= 0 && score <= 0)
         {
             ShowGameOverScreen(false);
         }
@@ -223,16 +223,6 @@ public class GameManager : MonoBehaviour
             }
             
             var moneyLost = Mathf.Max((int)hitInfo.Damage / 10, 8);
-            
-            if (player.modManager.HasMod(ModificationType.MoneyEqualsLife))
-            {
-                moneyLost = (int)Mathf.Round(hitInfo.Damage * 0.8f);
-            }
-
-            // if (ModManager.instance.HasMod(ModificationType.GlassLens))
-            // {
-            //     player.RemoveModification(ModificationType.GlassLens);
-            // }
 
             score -= moneyLost;
         }
@@ -251,10 +241,7 @@ public class GameManager : MonoBehaviour
     {
         score += GetInterest() + Random.Range(7, 9);
 
-        if (player.modManager.HasMod(ModificationType.HealOnKill))
-        {
-            player.Heal(0.2f);
-        }
+        player.modManager.ApplyOnKill(player);
         
         killCount++;
     }

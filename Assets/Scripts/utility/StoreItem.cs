@@ -24,65 +24,8 @@ public class StoreItem
         modification = mod;
         price = p;
 
-        switch (mod.type)
-        {
-            case ModificationType.AddFlatValue:
-                name = "Синяя линза";
-                description = "Добавляет +15 базового урона";
-                break;
-            case ModificationType.AddMultiplyValue:
-                name = "Красная линза";
-                description = "Добавляет +2 базового множителя";
-                break;
-            case ModificationType.MultiplyMultiplyValue:
-                name = "Желтая линза";
-                description = "Умножает количество снарядов в x2";
-                break;
-            case ModificationType.RubberDuck:
-                name = "Уточка-уборщик";
-                description = "В конце раунда появится Уточка-уборщик";
-                break;
-            case ModificationType.MoneyEqualsLife:
-                name = "Деньги - жизнь";
-                description = "Использует деньги вместо HP";
-                break;
-            case ModificationType.MoveSpeedIncrease:
-                name = "Черная линза";
-                description = "Увеличивает скорость передвижения";
-                break;
-            case ModificationType.HealOnKill:
-                name = "Фиолетовая линза";
-                description = "Каждое убийство восстанавливает HP";
-                break;
-            case ModificationType.BurnEffect:
-                name = "Огненная линза";
-                description = "Снаряды поджигают врагов";
-                break;
-            case ModificationType.GhostLaser:
-                name = "Призрачная линза";
-                description = "Проходят насквозь";
-                break;
-            case ModificationType.ReflectDamage:
-                name = "Шипованная линза";
-                description = "Перенаправляет 500% получаемого урона";
-                break;
-            case ModificationType.DoubleDamageAndTaken:
-                name = "Проклятая линза";
-                description = "Удваивает весь урон (получаемый и наносимый)";
-                break;
-            case ModificationType.InvulnerabilityOnHit:
-                name = "Сумеречная линза";
-                description = "После получения урона даёт 1 сек. неуязвимости";
-                break;
-            // case ModificationType.GlassLens:
-            //     name = "Хрупкая линза";
-            //     description = "Значительно увеличивает урон, может разбиться";
-            //     break;
-            default:
-                name = "";
-                description = "";
-                break;
-        }
+        name = mod.Strategy.Name;
+        description = mod.Strategy.Description;
     }
     
     public StoreItem(Modification mod, float p, float discount) : this(mod, p)
