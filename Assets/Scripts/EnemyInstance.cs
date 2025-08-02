@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using utility;
 
-public class EnemyInstance : MonoBehaviour
+public class EnemyInstance : MonoBehaviour, utility.IAliveEntity
 {
     [SerializeField] private AudioSource maxVerstappenSound;
     [SerializeField] private Enemy enemy;
@@ -14,17 +14,17 @@ public class EnemyInstance : MonoBehaviour
     [CanBeNull] public Action<float, float> onHealthPointsChange { private get; set; }
     [CanBeNull] public Action onDispose { private get; set; }
     public bool isAlive { get; private set; } = true;
-    
+
     public float healthPoints
     {
         get => _healthPoints;
         private set
         {
             if (Mathf.Approximately(_healthPoints, value)) return;
-            
+
             _healthPoints = value;
-            onHealthPointsChange?.Invoke(value, _maxHealthPoints); 
-            
+            onHealthPointsChange?.Invoke(value, _maxHealthPoints);
+
             if (healthPoints <= 0)
             {
                 Die(enemy.GetHitbox());
@@ -34,11 +34,35 @@ public class EnemyInstance : MonoBehaviour
 
     public ComposableModificationManager modManager { get; private set; }
 
+    // IAliveEntity implementation
+    public bool IsAlive => isAlive;
+    public bool IsGrounded => enemy != null && Physics.Raycast(enemy.transform.position + Vector3.up, Vector3.down, 1.1f);
+    public float HealthPoints => healthPoints;
+    public float MaxHealthPoints => _maxHealthPoints;
+    public Vector3 Position => transform.position;
+    public Transform Transform => transform;
+    public ComposableModificationManager ModManager => modManager;
+
+    public utility.AliveState GetAliveState()
+    {
+        var aliveState = new utility.AliveState(
+            IsAlive,
+            IsGrounded,
+            HealthPoints,
+            MaxHealthPoints,
+            Position,
+            Transform,
+            ModManager
+        );
+
+        return aliveState;
+    }
+
     private void Awake()
     {
         modManager = gameObject.AddComponent<ComposableModificationManager>();
-        enemy.Initialize(modManager);
-        
+        enemy.Initialize(modManager, () => GetAliveState());
+
         _name = RandomName.GetRandomName();
         gameObject.name = _name;
             
@@ -63,7 +87,8 @@ public class EnemyInstance : MonoBehaviour
 
                 if (laser.isBurn)
                 {
-                    ShotManager.Instance.TryProcessHit(laser.shotId);
+                    // Only apply burn if this shot hasn't been processed before
+                    if (ShotManager.Instance.TryProcessHit(laser.shotId))
                     {
                         _ = ApplyBurn((int)laserDamage / 2);
                     }
@@ -90,6 +115,12 @@ public class EnemyInstance : MonoBehaviour
 
     private void Update()
     {
+        // Apply modifications that run on update
+        if (modManager != null)
+        {
+            modManager.ApplyOnUpdate(GetAliveState());
+        }
+
         if (enemy && enemy.transform.position.y < -500)
         {
             Die(enemy.GetHitbox());
@@ -100,7 +131,10 @@ public class EnemyInstance : MonoBehaviour
 
     private float GetDamage(float damageIn)
     {
-        var nextHealthPoints = healthPoints - damageIn;
+        // Apply modifications that modify incoming damage
+        var modifiedDamage = modManager.ModifyIncomingDamage(GetAliveState(), damageIn);
+
+        var nextHealthPoints = healthPoints - modifiedDamage;
         
         if (nextHealthPoints <= 0 && isAlive)
         {
@@ -108,8 +142,14 @@ public class EnemyInstance : MonoBehaviour
         }
 
         healthPoints = nextHealthPoints;
+
+        // Apply modifications that trigger on taking damage
+        if (modifiedDamage > 0)
+        {
+            modManager.ApplyOnTakeDamage(GetAliveState(), modifiedDamage);
+        }
         
-        return damageIn;
+        return modifiedDamage;
     }
 
 

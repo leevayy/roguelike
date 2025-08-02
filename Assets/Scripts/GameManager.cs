@@ -241,7 +241,7 @@ public class GameManager : MonoBehaviour
     {
         score += GetInterest() + Random.Range(7, 9);
 
-        player.modManager.ApplyOnKill(player);
+        player.modManager.ApplyOnKill(player.GetAliveState());
         
         killCount++;
     }

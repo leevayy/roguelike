@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Numerics;
-using R3;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using utility;
@@ -10,7 +8,7 @@ using Plane = UnityEngine.Plane;
 using Random = UnityEngine.Random;
 using Vector3 = UnityEngine.Vector3;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, utility.IAliveEntity
 {
     [SerializeField] private Camera cam;
     [SerializeField] private GameObject debugPointer;
@@ -60,14 +58,37 @@ public class Player : MonoBehaviour
     
     public Action<PlayerEvent<PlayerEventPayload>> OnDashEvent;
 
+    // IAliveEntity implementation
+    public bool IsAlive => Healthpoints > 0;
+    public bool IsGrounded => _movementManager != null && Physics.Raycast(transform.position + Vector3.up, Vector3.down, 1.1f);
+    public float HealthPoints => Healthpoints;
+    public float MaxHealthPoints => _maxHealthpoints;
+    public Vector3 Position => transform.position;
+    public Transform Transform => transform;
+    public ComposableModificationManager ModManager => modManager;
+
+    public utility.AliveState GetAliveState()
+    {
+        return new utility.AliveState(
+            IsAlive,
+            IsGrounded,
+            HealthPoints,
+            MaxHealthPoints,
+            Position,
+            Transform,
+            ModManager
+        );
+    }
+
     private void Awake()
     {
         _rb = GetComponent<Rigidbody>();
         _movementManager = GetComponent<MovementManager>();
-        _movementManager.modManager = modManager;
         _characterAnimationController = GetComponent<CharacterAnimationController>();
         _ragdollController = GetComponent<RagdollController>();
         modManager = gameObject.AddComponent<ComposableModificationManager>();
+
+        _movementManager.Initialize(modManager, () => GetAliveState());
     }
     
     private void Start()
@@ -105,7 +126,7 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        modManager.ApplyOnUpdate(this);
+        modManager.ApplyOnUpdate(GetAliveState());
 
         if (Input.GetKeyDown(KeyCode.K))
         {
@@ -215,9 +236,14 @@ public class Player : MonoBehaviour
     
     private float GetDamage(float damageIn)
     {
-        var modifiedDamage = modManager.ModifyIncomingDamage(this, damageIn);
+        var modifiedDamage = modManager.ModifyIncomingDamage(GetAliveState(), damageIn);
 
         Healthpoints -= modifiedDamage;
+
+        if (modifiedDamage > 0)
+        {
+            modManager.ApplyOnTakeDamage(GetAliveState(), modifiedDamage);
+        }
 
         return modifiedDamage;
     }
@@ -230,11 +256,12 @@ public class Player : MonoBehaviour
     private void Shoot()
     {
         var projectileCount = modManager.GetProjectileCount(1);
+        
         for (var i = 0; i < projectileCount; i++)
         {
-            weapon.Shoot(transform.rotation, modManager.GetModifications());
+            weapon.Shoot(GetAliveState(), transform.rotation, modManager.GetModifications());
         }
-        modManager.ApplyOnShoot(weapon, 0); // The damage is calculated in the weapon
+        
         _characterAnimationController.FireAnimation();
     }
 

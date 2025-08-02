@@ -1,16 +1,21 @@
 // IModification.cs
-public interface IModification
-{
-    string Name { get; }
-    string Description { get; }
-    UnityEngine.Material Material { get; }
+using UnityEngine;
 
-    void ApplyOnShoot(Weapon weapon, float damage);
-    float ModifyIncomingDamage(Player player, float damage);
-    void ApplyOnUpdate(Player player);
-    void ApplyOnKill(Player player);
-    float GetModifiedValue(float baseValue);
-    int GetProjectileCount(int baseCount);
-    void ApplyOnTakeDamage(Player player, float damage);
+namespace utility
+{
+    public interface IModification
+    {
+        string Name { get; }
+        string Description { get; }
+        Material Material { get; }
+
+        void ApplyOnShoot(Weapon weapon, float damage);
+        float ModifyIncomingDamage(AliveState aliveState, float damage);
+        void ApplyOnUpdate(AliveState aliveState);
+        void ApplyOnKill(AliveState aliveState);
+        float GetModifiedValue(AliveState aliveState, float baseValue);
+        int GetProjectileCount(int baseCount);
+        void ApplyOnTakeDamage(AliveState aliveState, float damage);
+    }
 }
 

@@ -18,6 +18,8 @@ public class Weapon : MonoBehaviour
     // [SerializeField] private AudioSource jamSound;
     
     private float _sinceLastShot;
+    private bool _shouldApplyBurn;
+    private bool _shouldApplyGhost;
     
     private void Start()
     {
@@ -27,14 +29,24 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    private float GetDamage(ReadOnlyCollection<Modification> modifications)
+    private float GetDamage(AliveState aliveState, ReadOnlyCollection<Modification> modifications)
     {
         var modifiedDamage = flatDamage;
         foreach (var mod in modifications)
         {
-            modifiedDamage = mod.Strategy.GetModifiedValue(modifiedDamage);
+            modifiedDamage = mod.Strategy.GetModifiedValue(aliveState, modifiedDamage);
         }
         return modifiedDamage;
+    }
+
+    public void SetBurnEffect(bool shouldBurn)
+    {
+        _shouldApplyBurn = shouldBurn;
+    }
+
+    public void SetGhostEffect(bool shouldGhost)
+    {
+        _shouldApplyGhost = shouldGhost;
     }
 
     private void Update()
@@ -45,9 +57,9 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    public void Shoot(Quaternion rotation, ReadOnlyCollection<Modification> modifications)
+    public void Shoot(AliveState aliveState, Quaternion rotation, ReadOnlyCollection<Modification> modifications)
     {
-        var damage = GetDamage(modifications);
+        var damage = GetDamage(aliveState, modifications);
         var projectileCount = 1;
         foreach (var mod in modifications)
         {
@@ -57,19 +69,23 @@ public class Weapon : MonoBehaviour
         Shoot(rotation, damage, modifications, projectileCount);
     }
     
-    public void ShootWithMultiply(Quaternion rotation, float multiplier, ReadOnlyCollection<Modification> modifications)
-    {
-        var damage = GetDamage(modifications) * multiplier;
-        var projectileCount = 1;
-        foreach (var mod in modifications)
-        {
-            projectileCount = mod.Strategy.GetProjectileCount(projectileCount);
-        }
-        Shoot(rotation, damage, modifications, projectileCount);
-    }
+    // public void ShootWithMultiply(Quaternion rotation, float multiplier, ReadOnlyCollection<Modification> modifications)
+    // {
+    //     var damage = GetDamage(modifications) * multiplier;
+    //     var projectileCount = 1;
+    //     foreach (var mod in modifications)
+    //     {
+    //         projectileCount = mod.Strategy.GetProjectileCount(projectileCount);
+    //     }
+    //     Shoot(rotation, damage, modifications, projectileCount);
+    // }
 
     public void Shoot(Quaternion rotation, float damage, ReadOnlyCollection<Modification> modifications, int projectileCount = 1)
     {
+        // Reset effect flags before applying modifications
+        _shouldApplyBurn = false;
+        _shouldApplyGhost = false;
+        
         if (_sinceLastShot < cooldown)
         {
             // jamSound.Play();
@@ -97,6 +113,15 @@ public class Weapon : MonoBehaviour
             
             var shotId = ShotManager.Instance.GenerateNewShotId();
 
+            // Apply modifications before creating lasers
+            if (isOwnerPlayer)
+            {
+                foreach (var mod in modifications)
+                {
+                    mod.Strategy.ApplyOnShoot(this, damage);
+                }
+            }
+
             for (var i = 0; i < projectileCount; i++)
             {
                 var laser = Instantiate(laserPrefab, position + direction.normalized * 1.5f , rotation);
@@ -106,14 +131,18 @@ public class Weapon : MonoBehaviour
                 var laserScript = laser.GetComponent<Laser>();
 
                 laserScript.damage = damage;
-                
                 laserScript.shotId = shotId;
-
-                if (!isOwnerPlayer) continue;
-
-                foreach (var mod in modifications)
+                
+                // Apply burn effect if it's been set
+                if (_shouldApplyBurn)
                 {
-                    mod.Strategy.ApplyOnShoot(this, damage);
+                    laserScript.isBurn = true;
+                }
+                
+                // Apply ghost effect if it's been set
+                if (_shouldApplyGhost)
+                {
+                    laserScript.isSolid = true;
                 }
             }
         }

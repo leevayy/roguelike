@@ -40,19 +40,19 @@ public class ComposableModificationManager : MonoBehaviour
 
     // --- New Hook-based Methods ---
 
-    public void ApplyOnUpdate(Player player)
+    public void ApplyOnUpdate(utility.AliveState aliveState)
     {
         foreach (var mod in _modifications)
         {
-            mod.Strategy.ApplyOnUpdate(player);
+            mod.Strategy.ApplyOnUpdate(aliveState);
         }
     }
 
-    public void ApplyOnKill(Player player)
+    public void ApplyOnKill(utility.AliveState aliveState)
     {
         foreach (var mod in _modifications)
         {
-            mod.Strategy.ApplyOnKill(player);
+            mod.Strategy.ApplyOnKill(aliveState);
         }
     }
 
@@ -64,23 +64,23 @@ public class ComposableModificationManager : MonoBehaviour
         }
     }
 
-    public float ModifyIncomingDamage(Player player, float damage)
+    public float ModifyIncomingDamage(utility.AliveState aliveState, float damage)
     {
         var modifiedDamage = damage;
         foreach (var mod in _modifications)
         {
-            modifiedDamage = mod.Strategy.ModifyIncomingDamage(player, modifiedDamage);
+            modifiedDamage = mod.Strategy.ModifyIncomingDamage(aliveState, modifiedDamage);
         }
         return modifiedDamage;
     }
 
-    public float GetModifiedValue(float baseValue, ModificationType type)
+    public float GetModifiedValue(utility.AliveState aliveState, float baseValue, ModificationType type)
     {
         var modifiedValue = baseValue;
         var mods = _modifications.Where(mod => mod.Type == type);
         foreach (var mod in mods)
         {
-            modifiedValue = mod.Strategy.GetModifiedValue(modifiedValue);
+            modifiedValue = mod.Strategy.GetModifiedValue(aliveState, modifiedValue);
         }
         return modifiedValue;
     }
@@ -95,11 +95,32 @@ public class ComposableModificationManager : MonoBehaviour
         return modifiedCount;
     }
 
-    public void ApplyOnTakeDamage(Player player, float damage)
+    public void ApplyOnTakeDamage(utility.AliveState aliveState, float damage)
     {
         foreach (var mod in _modifications)
         {
-            mod.Strategy.ApplyOnTakeDamage(player, damage);
+            mod.Strategy.ApplyOnTakeDamage(aliveState, damage);
         }
+    }
+
+    // Legacy methods for backward compatibility with Player objects
+    public void ApplyOnUpdate(Player player)
+    {
+        ApplyOnUpdate(player.GetAliveState());
+    }
+
+    public void ApplyOnKill(Player player)
+    {
+        ApplyOnKill(player.GetAliveState());
+    }
+
+    public float ModifyIncomingDamage(Player player, float damage)
+    {
+        return ModifyIncomingDamage(player.GetAliveState(), damage);
+    }
+
+    public void ApplyOnTakeDamage(Player player, float damage)
+    {
+        ApplyOnTakeDamage(player.GetAliveState(), damage);
     }
 }

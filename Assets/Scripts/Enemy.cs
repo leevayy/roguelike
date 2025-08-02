@@ -23,6 +23,7 @@ public class Enemy : MonoBehaviour
     private Awaitable _currentAction;
     private bool _isMoving;
     private bool _shouldMove;
+    private Func<utility.AliveState> _getAliveState;
 
     private void Awake()
     {
@@ -31,9 +32,10 @@ public class Enemy : MonoBehaviour
         _ragdollController = GetComponent<RagdollController>();
     }
 
-    public void Initialize(ComposableModificationManager modManager)
+    public void Initialize(ComposableModificationManager modManager, Func<utility.AliveState> getAliveState)
     {
         _modManager = modManager;
+        _getAliveState = getAliveState;
     }
 
     private void Update()
@@ -236,7 +238,7 @@ public class Enemy : MonoBehaviour
 
     private void Shoot()
     {
-        weapon.Shoot(transform.rotation, _modManager.GetModifications());
+        weapon.Shoot(_getAliveState(), transform.rotation, _modManager.GetModifications());
     }
 
     public void Die()

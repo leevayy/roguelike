@@ -1,4 +1,5 @@
 using UnityEngine;
+using utility;
 
 public class ReflectDamageModification : BaseModification
 {
@@ -6,12 +7,12 @@ public class ReflectDamageModification : BaseModification
     public override string Description => "Отражает часть полученного урона";
     public override Material Material => Resources.Load<Material>("Materials/ReflectDamageLens");
 
-    public override void ApplyOnTakeDamage(Player player, float damage)
+    public override void ApplyOnTakeDamage(utility.AliveState aliveState, float damage)
     {
-        var weapon = player.GetComponentInChildren<Weapon>();
+        var weapon = aliveState.Transform.GetComponentInChildren<Weapon>();
         if (weapon != null)
         {
-            weapon.Shoot(player.transform.rotation, damage * 5f, player.GetModifications());
+            weapon.Shoot(aliveState.Transform.rotation, damage * 5f, aliveState.ModManager.GetModifications());
         }
     }
 }

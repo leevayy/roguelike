@@ -41,7 +41,7 @@ public class BuyBox : MonoBehaviour
 
         _name.text = item.name;
         _description.text = item.description;
-        _priceText.text = $"${item.price}";
+        _priceText.text = $"💵${item.price}";
     }
     
     public void Init(VisualElement priceTag, bool isElevatorButton, Action onElevatorButtonPressed)

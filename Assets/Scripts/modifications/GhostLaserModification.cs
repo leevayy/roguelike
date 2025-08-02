@@ -8,10 +8,6 @@ public class GhostLaserModification : BaseModification
 
     public override void ApplyOnShoot(Weapon weapon, float damage)
     {
-        var laser = weapon.GetComponent<Laser>();
-        if (laser != null)
-        {
-            laser.isSolid = true;
-        }
+        weapon.SetGhostEffect(true);
     }
 }

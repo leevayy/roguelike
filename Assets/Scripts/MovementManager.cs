@@ -13,12 +13,20 @@ public class MovementManager : MonoBehaviour
     public Vector3 MoveVector => _moveVector;
     
     public float additionalSpeed;
-    public ComposableModificationManager modManager;
+
+    private ComposableModificationManager _modManager;
+    private Func<AliveState> _getAliveState;
+
+    public void Initialize(ComposableModificationManager modManager, Func<AliveState> getAliveState)
+    {
+        _modManager = modManager;
+        _getAliveState = getAliveState;
+    }
 
     public void Tick(Vector3 moveInput)
     {
         _isGrounded = Physics.Raycast(transform.position + Vector3.up, Vector3.down, 1.1f);
-        
+
         _moveVector = GetMovementVector(moveInput);
     }
 
@@ -31,9 +39,9 @@ public class MovementManager : MonoBehaviour
     {
         var compoundSpeed = Speed + additionalSpeed;
 
-        if (modManager != null)
+        if (_modManager != null)
         {
-            compoundSpeed = modManager.GetModifiedValue(compoundSpeed, ModificationType.MoveSpeedIncrease);
+            compoundSpeed = _modManager.GetModifiedValue(aliveState: _getAliveState(), compoundSpeed, ModificationType.MoveSpeedIncrease);
         }
 
         return moveInput * compoundSpeed;

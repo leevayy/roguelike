@@ -9,10 +9,6 @@ public class BurnEffectModification : BaseModification
 
     public override void ApplyOnShoot(Weapon weapon, float damage)
     {
-        var laser = weapon.GetComponent<Laser>();
-        if (laser != null)
-        {
-            laser.isBurn = true;
-        }
+        weapon.SetBurnEffect(true);
     }
 }
