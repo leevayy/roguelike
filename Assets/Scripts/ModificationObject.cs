@@ -25,7 +25,15 @@ public class ModificationObject : MonoBehaviour
             return;
         }
 
-        meshRenderer.material = this.mod.Strategy.Material;
+        // Safety check to prevent null reference exceptions
+        if (this.mod?.Strategy?.Material != null)
+        {
+            meshRenderer.material = this.mod.Strategy.Material;
+        }
+        else
+        {
+            Debug.LogWarning($"ModificationObject: Material is null for modification type {this.mod?.Type}");
+        }
     }
 
     public void ChangeOrder(int newOrder)

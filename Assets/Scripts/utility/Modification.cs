@@ -70,8 +70,8 @@ namespace utility
                 ModificationType.MoveSpeedIncrease => new MoveSpeedIncreaseModification(),
                 ModificationType.MultiplyMultiplyValue => new MultiplyMultiplyValueModification(),
                 ModificationType.ReflectDamage => new ReflectDamageModification(),
-                // ModificationType.RubberDuck => new RubberDuckModification(), // Not created yet
-                _ => new BaseModification(), // Default case
+                ModificationType.RubberDuck => new RubberDuckModification(),
+                _ => throw new System.ArgumentException($"Unknown modification type: {modType}"),
             };
         }
     }
@@ -79,11 +79,34 @@ namespace utility
     // We still need to create these two missing concrete modification classes
     public class AddFlatValueModification : BaseModification
     {
+        public override string Name => "Плоский урон";
+        public override string Description => "Добавляет 15 единиц урона";
+        public override UnityEngine.Material Material => Resources.Load<Material>("Materials/AddFlatValueLens");
+        
         public override float GetModifiedValue(float baseValue) => baseValue + 15f;
     }
 
     public class AddMultiplyValueModification : BaseModification
     {
+        public override string Name => "Множитель урона";
+        public override string Description => "Умножает урон в 2 раза";
+        public override UnityEngine.Material Material => Resources.Load<Material>("Materials/AddMultiplyValueLens");
+        
         public override float GetModifiedValue(float baseValue) => baseValue * 2f;
+    }
+
+    public class RubberDuckModification : BaseModification
+    {
+        public override string Name => "Резиновая утка";
+        public override string Description => "Призывает полезного компаньона-утку";
+        public override UnityEngine.Material Material => Resources.Load<Material>("Materials/RubberDuckLens");
+
+        // This modification might need special handling during game initialization
+        // For now, we'll keep it simple and implement the basic interface
+        public override void ApplyOnUpdate(Player player)
+        {
+            // RubberDuck logic would go here - possibly spawning a companion
+            // This might need to be handled differently, possibly in GameManager
+        }
     }
 }

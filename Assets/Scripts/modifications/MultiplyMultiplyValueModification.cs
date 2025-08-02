@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class MultiplyMultiplyValueModification : BaseModification
 {
-    public override string Name => "Multiply Projectiles";
-    public override string Description => "Multiplies projectile count by x2";
-    public override Material Material => Resources.Load<Material>("Materials/MultiplyMultiplyValueMaterial");
+    public override string Name => "Умножение снарядов";
+    public override string Description => "Умножает количество снарядов в 2 раза";
+    public override Material Material => Resources.Load<Material>("Materials/MultiplyMultiplyValueLens");
 
     public override int GetProjectileCount(int baseCount)
     {

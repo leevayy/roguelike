@@ -24,8 +24,18 @@ public class StoreItem
         modification = mod;
         price = p;
 
-        name = mod.Strategy.Name;
-        description = mod.Strategy.Description;
+        // Safety checks to prevent null reference exceptions
+        if (mod?.Strategy != null)
+        {
+            name = mod.Strategy.Name ?? "Неизвестная модификация";
+            description = mod.Strategy.Description ?? "Описание отсутствует";
+        }
+        else
+        {
+            name = "Неизвестная модификация";
+            description = "Описание отсутствует";
+            Debug.LogWarning($"StoreItem: Strategy is null for modification type {mod?.Type}");
+        }
     }
     
     public StoreItem(Modification mod, float p, float discount) : this(mod, p)

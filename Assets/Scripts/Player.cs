@@ -17,6 +17,7 @@ public class Player : MonoBehaviour
     [SerializeField] private Weapon weapon;
     [SerializeField] private GameObject moneyBagPrefab;
     [SerializeField] private GameObject moneyBagAnchor;
+    [SerializeField] private GameObject modificationPrefab;
     [SerializeField] private Hitbox hitbox;
     [SerializeField] private AudioSource dashSound;
     [SerializeField] public AudioSource denyDamageSound;
@@ -35,6 +36,8 @@ public class Player : MonoBehaviour
     private float _healthpoints = 100f;
     private float _sinceLastHit = 0f;
     private float _sinceLastAutoShot = 0f;
+    
+    private readonly List<GameObject> _modObjects = new();
     
     public ComposableModificationManager modManager { get; private set; }
     
@@ -238,7 +241,21 @@ public class Player : MonoBehaviour
     private void AddModification(Modification modification, string name)
     {
         modManager.AddModification(modification);
-        GameUI.instance.UpdateMods(modManager.GetModifications().Count, name);
+        
+        // Create visual representation of the modification
+        if (modificationPrefab != null)
+        {
+            var modObject = Instantiate(modificationPrefab, weapon.transform);
+            _modObjects.Add(modObject);
+            
+            var modificationObjectComponent = modObject.GetComponent<ModificationObject>();
+            if (modificationObjectComponent != null)
+            {
+                modificationObjectComponent.Init(modification, _modObjects.Count - 1);
+            }
+        }
+        
+        GameUI.instance.UpdateMods(modManager.GetModifications().Count - 1, name);
     }
 
     public void RemoveModification(ModificationType modificationType)
@@ -297,8 +314,21 @@ public class Player : MonoBehaviour
     public ReadOnlyCollection<Modification> DropModifications()
     {
         GameUI.instance.ClearMods();
-        var mods = modManager.GetModifications();
+        
+        // Create a copy of the modifications to avoid issues with clearing the underlying list
+        var mods = new List<Modification>(modManager.GetModifications());
+        
+        foreach (var modObject in _modObjects)
+        {
+            if (modObject != null)
+            {
+                Destroy(modObject);
+            }
+        }
+        
+        _modObjects.Clear();
         modManager.Clear();
-        return mods;
+        
+        return mods.AsReadOnly();
     }
 }

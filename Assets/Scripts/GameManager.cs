@@ -267,8 +267,10 @@ public class GameManager : MonoBehaviour
     public ReadOnlyCollection<Modification> OnDrop(out Transform playerTransform)
     {
         playerTransform = player.transform;
+
+        var mods = player.DropModifications();
         
-        return player.DropModifications();
+        return mods;
     }
 
     private void UpdatePlayerMass(float scoreValue)

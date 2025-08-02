@@ -13,4 +13,5 @@ public abstract class BaseModification : IModification
     public virtual void ApplyOnKill(Player player) { }
     public virtual float GetModifiedValue(float baseValue) => baseValue;
     public virtual int GetProjectileCount(int baseCount) => baseCount;
+    public virtual void ApplyOnTakeDamage(Player player, float damage) { }
 }

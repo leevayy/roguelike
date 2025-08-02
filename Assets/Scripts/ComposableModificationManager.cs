@@ -94,4 +94,12 @@ public class ComposableModificationManager : MonoBehaviour
         }
         return modifiedCount;
     }
+
+    public void ApplyOnTakeDamage(Player player, float damage)
+    {
+        foreach (var mod in _modifications)
+        {
+            mod.Strategy.ApplyOnTakeDamage(player, damage);
+        }
+    }
 }
