@@ -35,7 +35,7 @@ public class MovementManager : MonoBehaviour
         Move(rb, _moveVector);
     }
 
-    private Vector3 GetMovementVector(Vector3 moveInput)
+    public float GetSpeed()
     {
         var compoundSpeed = Speed + additionalSpeed;
 
@@ -44,7 +44,14 @@ public class MovementManager : MonoBehaviour
             compoundSpeed = _modManager.GetModifiedValue(aliveState: _getAliveState(), compoundSpeed, ModificationType.MoveSpeedIncrease);
         }
 
-        return moveInput * compoundSpeed;
+        return compoundSpeed;
+    }
+
+    private Vector3 GetMovementVector(Vector3 moveInput)
+    {
+        var speed = GetSpeed();
+
+        return moveInput * speed;
     }
     
     private void Move(Rigidbody rb, Vector3 moveVector)

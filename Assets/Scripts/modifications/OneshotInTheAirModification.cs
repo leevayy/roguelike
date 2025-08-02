@@ -7,7 +7,7 @@ public class OneshotInTheAirModification : BaseModification
     const int AIRSHOT_DAMAGE = 9999;
     public override string Name => "Oneshot Trickshot";
     public override string Description => $"Выстрелы в воздухе наносят {AIRSHOT_DAMAGE} урона";
-    public override Material Material => Resources.Load<Material>("Materials/OneshotInTheAirLens");
+    public override Material Material => Resources.Load<Material>("Materials/MoveSpeedLens");
 
     public override float GetModifiedValue(AliveState aliveState, float baseValue)
     {

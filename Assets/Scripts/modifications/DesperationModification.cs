@@ -9,7 +9,7 @@ public class DesperationModification : BaseModification
 {
     public override string Name => "Отчаяние";
     public override string Description => "Увеличивает скорость когда здоровье низкое";
-    public override Material Material => Resources.Load<Material>("Materials/DesperationLens");
+    public override Material Material => Resources.Load<Material>("Materials/MoveSpeedLens");
 
     public override void ApplyOnUpdate(utility.AliveState aliveState)
     {

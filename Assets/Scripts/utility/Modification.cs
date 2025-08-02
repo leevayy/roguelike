@@ -10,7 +10,8 @@ namespace utility
         AddMultiplyValue,
         MultiplyMultiplyValue,
         RubberDuck,
-        MoneyEqualsLife,
+        // turns out too OP, too much pain in the ass when you try to think about other mods interactions
+        // MoneyEqualsLife,
         MoveSpeedIncrease,
         HealOnKill,
         ReflectDamage,
@@ -19,6 +20,7 @@ namespace utility
         BurnEffect,
         GhostLaser,
         OneshotInTheAir,
+        Desperation,
     }
 
     public class Modification
@@ -67,12 +69,13 @@ namespace utility
                 ModificationType.GhostLaser => new GhostLaserModification(),
                 ModificationType.HealOnKill => new HealOnKillModification(),
                 ModificationType.InvulnerabilityOnHit => new InvulnerabilityOnHitModification(),
-                ModificationType.MoneyEqualsLife => new MoneyEqualsLifeModification(),
+                // ModificationType.MoneyEqualsLife => new MoneyEqualsLifeModification(),
                 ModificationType.MoveSpeedIncrease => new MoveSpeedIncreaseModification(),
                 ModificationType.MultiplyMultiplyValue => new MultiplyMultiplyValueModification(),
                 ModificationType.ReflectDamage => new ReflectDamageModification(),
                 ModificationType.RubberDuck => new RubberDuckModification(),
                 ModificationType.OneshotInTheAir => new OneshotInTheAirModification(),
+                ModificationType.Desperation => new DesperationModification(),
                 _ => throw new System.ArgumentException($"Unknown modification type: {modType}"),
             };
         }
