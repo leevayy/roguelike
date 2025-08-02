@@ -14,12 +14,12 @@ public class ModManager : MonoBehaviour
 
     public bool HasMod(ModificationType modType)
     {
-        return GameManager.instance.modifications.ToList().Exists(mod => mod.type == modType);
+        return GameManager.instance.Player.modManager.HasMod(modType);
     }
     
     public int CountMod(ModificationType modType)
     {
-        return GameManager.instance.modifications.Count(mod => mod.type == modType);
+        return GameManager.instance.Player.modManager.CountMod(modType);
     }
     
     private void Awake()

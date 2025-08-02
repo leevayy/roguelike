@@ -12,7 +12,8 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float maxInterval = 1.5f;  // Maximum time in seconds between movements
     [SerializeField] private Weapon weapon;
     [SerializeField] private Hitbox hitbox;
-    [SerializeField] private GameObject modificationPrefab;
+    
+    private ComposableModificationManager _modManager;
     
     private Rigidbody _rb;
     private CharacterAnimationController _characterAnimationController;
@@ -28,6 +29,11 @@ public class Enemy : MonoBehaviour
         _rb = GetComponent<Rigidbody>();
         _characterAnimationController = GetComponent<CharacterAnimationController>();
         _ragdollController = GetComponent<RagdollController>();
+    }
+
+    public void Initialize(ComposableModificationManager modManager)
+    {
+        _modManager = modManager;
     }
 
     private void Update()
@@ -230,16 +236,7 @@ public class Enemy : MonoBehaviour
 
     private void Shoot()
     {
-        weapon.Shoot(transform.rotation);
-    }
-    
-    public void AddModification(Modification modification)
-    {
-        var mod = Instantiate(modificationPrefab, weapon.transform);
-        
-        var modObject = mod.GetComponent<ModificationObject>();
-        
-        weapon.AddModification(modObject, modification);
+        weapon.Shoot(transform.rotation, _modManager.GetModifications());
     }
 
     public void Die()

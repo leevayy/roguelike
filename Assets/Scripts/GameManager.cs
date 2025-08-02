@@ -58,7 +58,7 @@ public class GameManager : MonoBehaviour
         {
             winSound.Play();
             
-            if (!_duck && ModManager.instance.HasMod(ModificationType.RubberDuck))
+            if (!_duck && player.modManager.HasMod(ModificationType.RubberDuck))
             {
                 _duck = Instantiate(rubberDuckPrefab, transform);    
             }
@@ -137,8 +137,6 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    public ReadOnlyCollection<Modification> modifications => player.GetModifications();
-
     public static GameManager instance { get; private set; }
 
     private void Awake()
@@ -172,7 +170,7 @@ public class GameManager : MonoBehaviour
     {
         timeElapsed += Time.deltaTime;
 
-        if (player.Healthpoints <= 0 || (score <= 0 && ModManager.instance.HasMod(ModificationType.MoneyEqualsLife)))
+        if (player.Healthpoints <= 0 || (score <= 0 && player.modManager.HasMod(ModificationType.MoneyEqualsLife)))
         {
             ShowGameOverScreen(false);
         }
@@ -226,7 +224,7 @@ public class GameManager : MonoBehaviour
             
             var moneyLost = Mathf.Max((int)hitInfo.Damage / 10, 8);
             
-            if (ModManager.instance.HasMod(ModificationType.MoneyEqualsLife))
+            if (player.modManager.HasMod(ModificationType.MoneyEqualsLife))
             {
                 moneyLost = (int)Mathf.Round(hitInfo.Damage * 0.8f);
             }
@@ -253,7 +251,7 @@ public class GameManager : MonoBehaviour
     {
         score += GetInterest() + Random.Range(7, 9);
 
-        if (ModManager.instance.HasMod(ModificationType.HealOnKill))
+        if (player.modManager.HasMod(ModificationType.HealOnKill))
         {
             player.Heal(0.2f);
         }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Serialization;
 using utility;
 using Random = UnityEngine.Random;
 
@@ -14,14 +13,11 @@ public class Weapon : MonoBehaviour
     [SerializeField] private GameObject dummy;
     [SerializeField] private float flatDamage = 10f;
     [SerializeField] private float cooldown = 0.2f;
-    [SerializeField] private List<ModificationObject> mods;
     [SerializeField] private AudioSource shootSound;
     [SerializeField] private bool isOwnerPlayer;
     // [SerializeField] private AudioSource jamSound;
     
     private float _sinceLastShot;
-    
-    public ReadOnlyCollection<Modification> modifications => mods.AsReadOnly().Select(obj => obj.mod).ToList().AsReadOnly();
     
     private void Start()
     {
@@ -31,19 +27,15 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    private float GetDamage()
+    private float GetDamage(ReadOnlyCollection<Modification> modifications)
     {
         var flatValue = flatDamage;
         var multValue = 1f;
 
-        mods.Sort((mod1, mod2) => mod1.order - mod2.order);
+        var damageMods = modifications.Where((mod) => mod.type is ModificationType.AddFlatValue or ModificationType.AddMultiplyValue or ModificationType.DoubleDamageAndTaken);
 
-        var damageMods = mods.Where((mod) => mod.mod.type is ModificationType.AddFlatValue or ModificationType.AddMultiplyValue or ModificationType.DoubleDamageAndTaken);
-
-        foreach (var modObject in damageMods)
+        foreach (var mod in damageMods)
         {
-            var mod = modObject.GetStats();
-            
             switch (mod.type)
             {
                 case ModificationType.AddFlatValue:
@@ -74,38 +66,17 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    public void AddModification(ModificationObject mod, Modification modification)
+    public void Shoot(Quaternion rotation, ReadOnlyCollection<Modification> modifications)
     {
-        mod.Init(modification, mods.Count);
-
-        mods.Add(mod);
-    }
-
-    public void RemoveModificationsOfType(ModificationType type)
-    {
-        mods.RemoveAll(mod => mod.mod.type == type);
+        Shoot(rotation, GetDamage(modifications), modifications);
     }
     
-    public ReadOnlyCollection<Modification> DropModifications()
+    public void ShootWithMultiply(Quaternion rotation, float multiplier, ReadOnlyCollection<Modification> modifications)
     {
-        var oldMods = modifications; 
-        
-        mods.Clear();
-        
-        return oldMods;
+        Shoot(rotation, GetDamage(modifications) * multiplier, modifications);
     }
 
-    public void Shoot(Quaternion rotation)
-    {
-        Shoot(rotation, GetDamage());
-    }
-    
-    public void ShootWithMultiply(Quaternion rotation, float multiplier)
-    {
-        Shoot(rotation, GetDamage() * multiplier);
-    }
-
-    public void Shoot(Quaternion rotation, float damage)
+    public void Shoot(Quaternion rotation, float damage, ReadOnlyCollection<Modification> modifications)
     {
         if (_sinceLastShot < cooldown)
         {
@@ -132,9 +103,7 @@ public class Weapon : MonoBehaviour
                 
             shootSound.Play();
             
-            var damageMods = mods.Where((mod) => mod.mod.type == ModificationType.MultiplyMultiplyValue);
-            
-            var projectileCount = 1 * Mathf.Pow(2, damageMods.Count());
+            var projectileCount = 1 * Mathf.Pow(2, modifications.Count(mod => mod.type == ModificationType.MultiplyMultiplyValue));
 
             var shotId = ShotManager.Instance.GenerateNewShotId();
 
@@ -151,13 +120,13 @@ public class Weapon : MonoBehaviour
                 laserScript.shotId = shotId;
 
                 if (!isOwnerPlayer) continue;
-                
-                if (ModManager.instance.HasMod(ModificationType.BurnEffect))
+
+                if (modifications.Any(mod => mod.type == ModificationType.BurnEffect))
                 {
                     laserScript.isBurn = true;
                 }
-                    
-                if (ModManager.instance.HasMod(ModificationType.GhostLaser))
+
+                if (modifications.Any(mod => mod.type == ModificationType.GhostLaser))
                 {
                     laserScript.isSolid = true;
                 }

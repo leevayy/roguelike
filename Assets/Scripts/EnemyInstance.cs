@@ -32,8 +32,13 @@ public class EnemyInstance : MonoBehaviour
         }
     }
 
+    public ComposableModificationManager modManager { get; private set; }
+
     private void Awake()
     {
+        modManager = gameObject.AddComponent<ComposableModificationManager>();
+        enemy.Initialize(modManager);
+        
         _name = RandomName.GetRandomName();
         gameObject.name = _name;
             
@@ -220,7 +225,7 @@ public class EnemyInstance : MonoBehaviour
     {
         for (int i = 0; i < count; i++)
         {
-            enemy.AddModification(new Modification());
+            modManager.AddModification(new Modification());
         }
     }
 

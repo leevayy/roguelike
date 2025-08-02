@@ -15,7 +15,6 @@ public class Player : MonoBehaviour
     [SerializeField] private Camera cam;
     [SerializeField] private GameObject debugPointer;
     [SerializeField] private Weapon weapon;
-    [SerializeField] private GameObject modificationPrefab;
     [SerializeField] private GameObject moneyBagPrefab;
     [SerializeField] private GameObject moneyBagAnchor;
     [SerializeField] private Hitbox hitbox;
@@ -36,7 +35,8 @@ public class Player : MonoBehaviour
     private float _healthpoints = 100f;
     private float _sinceLastHit = 0f;
     private float _sinceLastAutoShot = 0f;
-    private readonly List<GameObject> _modObjects = new();
+    
+    public ComposableModificationManager modManager { get; private set; }
     
     public int MoneySpent { get; private set; }
     public GameObject MoneyBag { get; private set; }
@@ -63,6 +63,7 @@ public class Player : MonoBehaviour
         _movementManager = GetComponent<MovementManager>();
         _characterAnimationController = GetComponent<CharacterAnimationController>();
         _ragdollController = GetComponent<RagdollController>();
+        modManager = gameObject.AddComponent<ComposableModificationManager>();
     }
     
     private void Start()
@@ -75,7 +76,7 @@ public class Player : MonoBehaviour
 
             if (!isHitByEnemy) return;
             
-            if (ModManager.instance.HasMod(ModificationType.InvulnerabilityOnHit) && _sinceLastHit < 1f)
+            if (modManager.HasMod(ModificationType.InvulnerabilityOnHit) && _sinceLastHit < 1f)
             {
                 denyDamageSound.Play();
                 return;
@@ -88,14 +89,14 @@ public class Player : MonoBehaviour
             var laser = other.gameObject.GetComponent<Laser>();
 
             GameManager.instance.OnHit(
-                ModManager.instance.HasMod(ModificationType.MoneyEqualsLife)
+                modManager.HasMod(ModificationType.MoneyEqualsLife)
                     ? new HitInfo(GameHitEntity.Enemy, laser.damage, laser.shotId)
                     : new HitInfo(GameHitEntity.Enemy, GetDamage(laser.damage), laser.shotId),
                 GameHitEntity.Ally, collisionPoint);
 
-            for (var i = 0; i < ModManager.instance.CountMod(ModificationType.ReflectDamage); i++)
+            for (var i = 0; i < modManager.CountMod(ModificationType.ReflectDamage); i++)
             {
-                weapon.Shoot(transform.rotation, laser.damage * 5f);
+                weapon.Shoot(transform.rotation, laser.damage * 5f, modManager.GetModifications());
             }
         });
 
@@ -220,7 +221,7 @@ public class Player : MonoBehaviour
     
     private float GetDamage(float damageIn)
     {
-        for (var i = 0; i < ModManager.instance.CountMod(ModificationType.DoubleDamageAndTaken); i++)
+        for (var i = 0; i < modManager.CountMod(ModificationType.DoubleDamageAndTaken); i++)
         {
             damageIn *= 2f;
         }
@@ -237,33 +238,26 @@ public class Player : MonoBehaviour
 
     private void Shoot()
     {
-        weapon.Shoot(transform.rotation);
+        weapon.Shoot(transform.rotation, modManager.GetModifications());
         _characterAnimationController.FireAnimation();
     }
 
     private void AddModification(Modification modification, string name)
     {
-        var mod = Instantiate(modificationPrefab, weapon.transform);
-
-        _modObjects.Add(mod);
-
-        var modObject = mod.GetComponent<ModificationObject>();
-
-        GameUI.instance.UpdateMods(weapon.modifications.Count, name);
-
-        weapon.AddModification(modObject, modification);
+        modManager.AddModification(modification);
+        GameUI.instance.UpdateMods(modManager.GetModifications().Count, name);
     }
 
     public void RemoveModification(ModificationType modificationType)
     {
-        weapon.RemoveModificationsOfType(modificationType);
+        modManager.RemoveAllModifiersOfType(modificationType);
     }
 
     public void Heal(float part = 1)
     {
         var healing = _maxHealthpoints * part;
         
-        if (ModManager.instance.HasMod(ModificationType.MoneyEqualsLife))
+        if (modManager.HasMod(ModificationType.MoneyEqualsLife))
         {
             GameManager.instance.score += (int)healing;
         }
@@ -280,7 +274,7 @@ public class Player : MonoBehaviour
             return true;
         }
 
-        if (weapon.modifications.Count >= 5 && item.type != StoreItemType.Reroll)
+        if (modManager.GetModifications().Count >= 5 && item.type != StoreItemType.Reroll)
         {
             return false;
         }
@@ -309,20 +303,14 @@ public class Player : MonoBehaviour
 
     public ReadOnlyCollection<Modification> GetModifications()
     {
-        return weapon.modifications;
+        return modManager.GetModifications();
     }
 
     public ReadOnlyCollection<Modification> DropModifications()
     {
         GameUI.instance.ClearMods();
-        
-        foreach (var modObject in _modObjects)
-        {
-            Destroy(modObject);
-        }
-        
-        _modObjects.Clear();
-
-        return weapon.DropModifications();
+        var mods = modManager.GetModifications();
+        modManager.Clear();
+        return mods;
     }
 }
