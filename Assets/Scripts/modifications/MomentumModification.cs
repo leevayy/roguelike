@@ -6,7 +6,7 @@ public class MomentumModification : BaseModification
     public override string Name => "Моментум";
     public override string Description => "Урон увеличивается в зависимости от скорости движения";
     public override Material Material => Resources.Load<Material>("Materials/DamageLens");
-    public override Rarity Rarity => Rarity.Rare;
+    public override Rarity Rarity => Rarity.Legendary;
 
     public override float GetModifiedValue(AliveState aliveState, float baseValue)
     {

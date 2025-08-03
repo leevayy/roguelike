@@ -4,12 +4,12 @@ using utility;
 public class RampageModification : BaseModification
 {
     private float _killStreak = 0f;
-    private const float DAMAGE_MULTIPLIER_PER_KILL = 0.25f;
+    private const float DAMAGE_MULTIPLIER_PER_KILL = 0.50f;
 
     public override string Name => "Killstreak";
     public override string Description => $"Каждое убийство увеличивает урон на {DAMAGE_MULTIPLIER_PER_KILL * 100}%. Сбрасывается при получении урона";
     public override Material Material => Resources.Load<Material>("Materials/DamageLens");
-    public override Rarity Rarity => Rarity.Legendary;
+    public override Rarity Rarity => Rarity.Epic;
 
     public override void ApplyOnKill(AliveState aliveState)
     {

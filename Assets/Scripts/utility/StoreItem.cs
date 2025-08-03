@@ -37,10 +37,30 @@ public class StoreItem
             Debug.LogWarning($"StoreItem: Strategy is null for modification type {mod?.Type}");
         }
     }
+    public float GetRarityPriceModificator(Rarity rarity)
+    {
+        switch (rarity)
+        {
+            case Rarity.Common:
+                return 1f;
+            case Rarity.Uncommon:
+                return 1.2f;
+            case Rarity.Rare:
+                return 1.5f;
+            case Rarity.Epic:
+                return 2f;
+            case Rarity.Legendary:
+                return 3f;
+            default:
+                return 1f;
+        }
+    }
     
     public StoreItem(Modification mod, float p, float discount) : this(mod, p)
     {
-        price = Mathf.Round(p * (100 - discount) / 100);
+        var modifier = GetRarityPriceModificator(mod.Strategy.Rarity);
+
+        price = Mathf.Round(p * modifier * (100 - discount) / 100);
         if (discount > 0)
         {
             name += $"(-{discount}%)";

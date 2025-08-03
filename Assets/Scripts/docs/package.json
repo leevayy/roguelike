@@ -1,0 +1,13 @@
+{
+  "name": "modifications-table-generator",
+  "version": "1.0.0",
+  "description": "Generates a table of all modifications in the roguelike game",
+  "main": "generate-modifications-table.js",
+  "scripts": {
+    "generate": "node generate-modifications-table.js",
+    "start": "node generate-modifications-table.js"
+  },
+  "keywords": ["roguelike", "modifications", "table", "generator"],
+  "author": "Game Developer",
+  "license": "MIT"
+}
