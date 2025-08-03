@@ -6,36 +6,35 @@ using Random = UnityEngine.Random;
 
 public class Enemy : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed = 5f;  // Speed of the movement (how fast the object moves)
-    [SerializeField] private float moveBurstRange = 6f;  // Maximum distance for each burst of movement
-    [SerializeField] private float minInterval = 0.2f;  // Minimum time in seconds between movements
-    [SerializeField] private float maxInterval = 1.5f;  // Maximum time in seconds between movements
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float moveBurstRange = 6f;
+    [SerializeField] private float minInterval = 0.2f;
+    [SerializeField] private float maxInterval = 1.5f;
     [SerializeField] private Weapon weapon;
     [SerializeField] private Hitbox hitbox;
     
     private ComposableModificationManager _modManager;
     
-    private Rigidbody _rb;
-    private CharacterAnimationController _characterAnimationController;
-    private RagdollController _ragdollController;
+    protected Rigidbody _rb;
+    protected CharacterAnimationController _characterAnimationController;
+    protected RagdollController _ragdollController;
 
-    private GameObject _target;
+    protected GameObject _target;
     private Awaitable _currentAction;
-    private bool _isMoving;
-    private bool _shouldMove;
-    private Func<utility.AliveState> _getAliveState;
+    protected bool _isMoving;
+    protected bool _shouldMove;
+    private Func<AliveState> _getAliveState;
 
-    private void Awake()
+    public virtual void Initialize(ComposableModificationManager modManager, Func<AliveState> getAliveState)
     {
         _rb = GetComponent<Rigidbody>();
         _characterAnimationController = GetComponent<CharacterAnimationController>();
+        _characterAnimationController.Initialize(false);
         _ragdollController = GetComponent<RagdollController>();
-    }
 
-    public void Initialize(ComposableModificationManager modManager, Func<utility.AliveState> getAliveState)
-    {
         _modManager = modManager;
         _getAliveState = getAliveState;
+        weapon.OnShoot = () => _characterAnimationController.FireAnimation();
     }
 
     private void Update()
@@ -43,7 +42,7 @@ public class Enemy : MonoBehaviour
         _characterAnimationController.Tick(transform.InverseTransformVector(_rb.linearVelocity));
     }
     
-    private void FixedUpdate()
+    protected virtual void FixedUpdate()
     {
         var isGrounded = Physics.Raycast(transform.position + Vector3.up, Vector3.down, 1.1f);
 
@@ -54,17 +53,23 @@ public class Enemy : MonoBehaviour
             return;
         }
 
-        if (_shouldMove && _target)
-        {
-            transform.LookAt(_target.transform.position);
-        }
+        LookAtTarget();
 
         if (!_shouldMove && _target)
         {
             StartMoving();
         }
     }
-    
+
+    protected virtual void LookAtTarget()
+    {
+        if (_shouldMove && _target)
+        {
+            transform.LookAt(_target.transform.position);
+        }
+    }
+
+
     public void SET_MAX_SPEED()
     {
         moveSpeed = 20f;
@@ -89,7 +94,7 @@ public class Enemy : MonoBehaviour
         _target = newTarget;
     }
 
-    private void StopMoving()
+    protected void StopMoving()
     {
         if (!_shouldMove) return;
         
@@ -133,7 +138,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private async Awaitable MoveBurst() // Changed to public for external calling if needed
+    protected virtual async Awaitable MoveBurst() // Changed to public for external calling if needed
     {
         _isMoving = true;
         if (_characterAnimationController != null)
@@ -236,7 +241,7 @@ public class Enemy : MonoBehaviour
         return direction / Math.Abs(direction);
     }
 
-    private void Shoot()
+    protected void Shoot()
     {
         weapon.Shoot(_getAliveState(), transform.rotation, _modManager.GetModifications());
     }

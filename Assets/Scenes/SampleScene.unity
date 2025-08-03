@@ -611,7 +611,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 94254bca4a0694cf9835d5ff2ee52cac, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 94254bca4a0694cf9835d5ff2ee52cac, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.2
@@ -1660,7 +1660,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: dadfebac87dde4c4bb9ec11166ee0df8, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: dadfebac87dde4c4bb9ec11166ee0df8, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -1789,7 +1789,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 84a5c01d399fe42ffaf7be359b8250a9, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 84a5c01d399fe42ffaf7be359b8250a9, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -2725,7 +2725,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: b481af147dced4b9195430b967d6bb88, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: b481af147dced4b9195430b967d6bb88, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.498
@@ -3015,7 +3015,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 62c187d0d17214eea935a1a6301bc81b, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 62c187d0d17214eea935a1a6301bc81b, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -3468,7 +3468,15 @@ PrefabInstance:
     - target: {fileID: 2529648153174775983, guid: 8ffbc97aa22bd4c6e950d73edbce88b7, type: 3}
       propertyPath: enemyPrefab
       value: 
+      objectReference: {fileID: 8575832248738105069, guid: 3badc3077fd7e7b48aac9305b9c9a06b, type: 3}
+    - target: {fileID: 2529648153174775983, guid: 8ffbc97aa22bd4c6e950d73edbce88b7, type: 3}
+      propertyPath: commonEnemyPrefab
+      value: 
       objectReference: {fileID: 8575832248738105069, guid: a724a5838361744a69cd28651a69d4bb, type: 3}
+    - target: {fileID: 2529648153174775983, guid: 8ffbc97aa22bd4c6e950d73edbce88b7, type: 3}
+      propertyPath: rusherEnemyPrefab
+      value: 
+      objectReference: {fileID: 8575832248738105069, guid: 3badc3077fd7e7b48aac9305b9c9a06b, type: 3}
     - target: {fileID: 2990315412450375700, guid: 8ffbc97aa22bd4c6e950d73edbce88b7, type: 3}
       propertyPath: m_Name
       value: LevelWithEnemies

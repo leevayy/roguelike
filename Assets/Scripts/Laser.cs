@@ -35,6 +35,10 @@ public class Laser : MonoBehaviour
 
     private void Update()
     {
+        if (rb == null)
+        {
+            rb = GetComponent<Rigidbody>();
+        }
         rb.linearVelocity = speed * transform.forward;
     }
 

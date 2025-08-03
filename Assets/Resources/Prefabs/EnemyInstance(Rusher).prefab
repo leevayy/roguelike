@@ -323,10 +323,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 947974162105785635}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 1.875
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -517,10 +517,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1216449084538845698}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 1.875
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -930,10 +930,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2123671978420739192}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 1.25
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -1258,10 +1258,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2782619710420174408}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 1.25
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -1422,10 +1422,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2925734630524296630}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 1.875
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -1689,7 +1689,7 @@ GameObject:
   - component: {fileID: 2190757541660390204}
   - component: {fileID: 8575832248738105069}
   m_Layer: 0
-  m_Name: EnemyBigGun
+  m_Name: EnemyInstance(Rusher)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1724,7 +1724,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxVerstappenSound: {fileID: 5691202753738972848}
-  enemy: {fileID: 6572500204532096096}
+  enemy: {fileID: 4962160587503658718}
 --- !u!1 &3361905221328448462
 GameObject:
   m_ObjectHideFlags: 0
@@ -2068,10 +2068,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4428484103844299528}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 1.875
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -2593,7 +2593,7 @@ GameObject:
   - component: {fileID: 2155100247425226732}
   - component: {fileID: 2149651221605066240}
   - component: {fileID: 266497175021708955}
-  - component: {fileID: 267333095269715177}
+  - component: {fileID: 4859325358033336190}
   - component: {fileID: 8474287524176612021}
   m_Layer: 0
   m_Name: Eye
@@ -2670,7 +2670,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &267333095269715177
+--- !u!114 &4859325358033336190
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2679,16 +2679,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 5469429318729464116}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 51148f67cfa3442e3875b92988df0bad, type: 3}
+  m_Script: {fileID: 11500000, guid: 768343b68ce2b2e43a953fec97fc612a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  laserPrefab: {fileID: 8911935830684726184, guid: e01d2bb931a7e40749bfe882c03a36f0, type: 3}
+  laserPrefab: {fileID: 0}
   dummy: {fileID: 0}
   flatDamage: 10
-  cooldown: 0.1
-  mods: []
+  cooldown: 0.2
   shootSound: {fileID: 8474287524176612021}
-  isOwnerPlayer: 1
+  isOwnerPlayer: 0
+  meleeRange: 2
+  meleeAngle: 90
+  targetLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  meleeSound: {fileID: 8474287524176612021}
+  meleeEffect: {fileID: 0}
 --- !u!82 &8474287524176612021
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2699,7 +2705,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 613ae456d131343df9797f9dd50f1cf6, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 613ae456d131343df9797f9dd50f1cf6, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 0.2
@@ -2849,10 +2855,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5539085211292346001}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 3.125
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -3111,10 +3117,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6178034151785772175}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 1.25
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -3334,10 +3340,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6731774712109377164}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 1.25
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -3636,10 +3642,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7054253516371396877}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 1.25
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -4025,10 +4031,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7697096701940020030}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 3.125
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -4087,7 +4093,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 6015a34b03eaf4846838d8046c4becfd, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 6015a34b03eaf4846838d8046c4becfd, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -4371,7 +4377,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2999401158469038189}
   - component: {fileID: 4373780219299012103}
-  - component: {fileID: 6572500204532096096}
+  - component: {fileID: 4962160587503658718}
   - component: {fileID: 142864994409339341}
   - component: {fileID: 6988615198941505106}
   - component: {fileID: 3931818098519379075}
@@ -4430,7 +4436,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &6572500204532096096
+--- !u!114 &4962160587503658718
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4439,16 +4445,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 8656255407053034746}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 644b5a36c47a34d8288de1b1dbaebe8a, type: 3}
+  m_Script: {fileID: 11500000, guid: 01914910cc2c3a841936ef3149e15049, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
   moveBurstRange: 6
   minInterval: 0.2
   maxInterval: 1.5
-  weapon: {fileID: 267333095269715177}
+  weapon: {fileID: 4859325358033336190}
   hitbox: {fileID: 1262385336131383609}
-  modificationPrefab: {fileID: 3102776283713458581, guid: b06e6c8918bb1487c8ba5cf007fa39c4, type: 3}
+  rushSpeed: 12
+  rushDistance: 15
+  meleeRange: 2
+  rushCooldown: 2
 --- !u!54 &142864994409339341
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4456,10 +4465,10 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8656255407053034746}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}

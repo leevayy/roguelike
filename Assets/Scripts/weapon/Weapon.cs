@@ -11,15 +11,17 @@ public class Weapon : MonoBehaviour
 {
     [SerializeField] private GameObject laserPrefab;
     [SerializeField] private GameObject dummy;
-    [SerializeField] private float flatDamage = 10f;
-    [SerializeField] private float cooldown = 0.2f;
+    [SerializeField] protected float flatDamage = 10f;
+    [SerializeField] protected float cooldown = 0.2f;
     [SerializeField] private AudioSource shootSound;
-    [SerializeField] private bool isOwnerPlayer;
+    [SerializeField] protected bool isOwnerPlayer;
     // [SerializeField] private AudioSource jamSound;
     
-    private float _sinceLastShot;
-    private bool _shouldApplyBurn;
-    private bool _shouldApplyGhost;
+    protected float _sinceLastShot;
+    protected bool _shouldApplyBurn;
+    protected bool _shouldApplyGhost;
+
+    public virtual Action OnShoot { protected get;  set; } = null;
     
     private void Start()
     {
@@ -29,7 +31,7 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    private float GetDamage(AliveState aliveState, ReadOnlyCollection<Modification> modifications)
+    protected float GetDamage(AliveState aliveState, ReadOnlyCollection<Modification> modifications)
     {
         var modifiedDamage = flatDamage;
         foreach (var mod in modifications)
@@ -59,7 +61,7 @@ public class Weapon : MonoBehaviour
         }
     }
 
-    public void Shoot(AliveState aliveState, Quaternion rotation, ReadOnlyCollection<Modification> modifications)
+    public virtual void Shoot(AliveState aliveState, Quaternion rotation, ReadOnlyCollection<Modification> modifications)
     {
         var damage = GetDamage(aliveState, modifications);
         var projectileCount = 1;
@@ -70,19 +72,8 @@ public class Weapon : MonoBehaviour
 
         Shoot(rotation, damage, modifications, projectileCount);
     }
-    
-    // public void ShootWithMultiply(Quaternion rotation, float multiplier, ReadOnlyCollection<Modification> modifications)
-    // {
-    //     var damage = GetDamage(modifications) * multiplier;
-    //     var projectileCount = 1;
-    //     foreach (var mod in modifications)
-    //     {
-    //         projectileCount = mod.Strategy.GetProjectileCount(projectileCount);
-    //     }
-    //     Shoot(rotation, damage, modifications, projectileCount);
-    // }
 
-    public void Shoot(Quaternion rotation, float damage, ReadOnlyCollection<Modification> modifications, int projectileCount = 1)
+    public virtual void Shoot(Quaternion rotation, float damage, ReadOnlyCollection<Modification> modifications, int projectileCount = 1)
     {
         // Reset effect flags before applying modifications
         _shouldApplyBurn = false;
@@ -111,17 +102,14 @@ public class Weapon : MonoBehaviour
             var pitch = 3 - _sinceLastShot / (_sinceLastShot + cooldown + 1) * (1 * Random.Range(0f, 1f));
             shootSound.pitch = pitch;
                 
+            OnShoot?.Invoke();
             shootSound.Play();
             
             var shotId = ShotManager.Instance.GenerateNewShotId();
 
-            // Apply modifications before creating lasers
-            if (isOwnerPlayer)
+            foreach (var mod in modifications)
             {
-                foreach (var mod in modifications)
-                {
-                    mod.Strategy.ApplyOnShoot(this, damage);
-                }
+                mod.Strategy.ApplyOnShoot(this, damage);
             }
 
             for (var i = 0; i < projectileCount; i++)

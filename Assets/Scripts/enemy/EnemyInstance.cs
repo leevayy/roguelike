@@ -72,17 +72,17 @@ public class EnemyInstance : MonoBehaviour, utility.IAliveEntity
             {
                 return;
             }
-        
+
             var isHitByAlly = other.CompareTag("AllyProjectile");
-        
+
             if (isHitByAlly)
             {
                 var collisionPoint = other.GetComponent<Collider>().ClosestPoint(enemy.transform.position);
 
                 var laser = other.GetComponent<Laser>();
-                
+
                 var laserDamage = laser.damage;
-                
+
                 GameManager.instance.OnHit(new HitInfo(GameHitEntity.Ally, GetDamage(laserDamage), laser.shotId), GameHitEntity.Enemy, collisionPoint);
 
                 if (laser.isBurn)
@@ -93,14 +93,16 @@ public class EnemyInstance : MonoBehaviour, utility.IAliveEntity
                         _ = ApplyBurn((int)laserDamage / 2);
                     }
                 }
-                
-                if (healthPoints <= 0) 
+
+                if (healthPoints <= 0)
                 {
                     var hitDirection = other.GetComponent<Rigidbody>().linearVelocity.normalized;
-                    
+
                     Throwback(hitDirection);
                 }
-            }
+
+                Destroy(other.gameObject);
+            }            
         });
     }
 

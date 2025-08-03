@@ -85,6 +85,8 @@ public class Player : MonoBehaviour, utility.IAliveEntity
         _rb = GetComponent<Rigidbody>();
         _movementManager = GetComponent<MovementManager>();
         _characterAnimationController = GetComponent<CharacterAnimationController>();
+        _characterAnimationController.Initialize(false);
+        
         _ragdollController = GetComponent<RagdollController>();
         modManager = gameObject.AddComponent<ComposableModificationManager>();
 
@@ -111,6 +113,8 @@ public class Player : MonoBehaviour, utility.IAliveEntity
                 new HitInfo(GameHitEntity.Enemy, damage, laser.shotId),
                 GameHitEntity.Ally,
                 collisionPoint);
+
+            Destroy(other.gameObject);
         });
 
         AfterStart?.Invoke(this);

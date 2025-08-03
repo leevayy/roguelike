@@ -9,7 +9,9 @@ using Random = UnityEngine.Random;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [SerializeField] private EnemyInstance enemyPrefab;
+    [SerializeField] private EnemyInstance commonEnemyPrefab;
+    [SerializeField] private EnemyInstance rusherEnemyPrefab;
+
     private readonly List<EnemyInstance> _instances = new List<EnemyInstance>();
     [CanBeNull] private Action<EnemyInstance> _cachedOnSpawn;
     private Awaitable _currentAction;
@@ -19,14 +21,6 @@ public class EnemySpawner : MonoBehaviour
     private bool _isActive;
     private bool _shouldSpawn;
     private bool _playerInside;
-
-    private void Start()
-    {
-        if (!enemyPrefab)
-        {
-            enemyPrefab = Resources.Load<EnemyInstance>("Prefabs/EnemyInstance");
-        }
-    }
 
     // Step 1: Initialize the spawner, but do not start spawning
     public void SpawnEnemies(Action<EnemyInstance> onSpawn)
@@ -69,7 +63,7 @@ public class EnemySpawner : MonoBehaviour
         _isActive = false;
     }
 
-    public void StopSpawning()
+    [ContextMenu(nameof(StopSpawning))] public void StopSpawning()
     {
         _shouldSpawn = false;
         InternalStopSpawning();
@@ -85,10 +79,21 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
-    private void SpawnEnemy(Action<EnemyInstance> onSpawn)
+    private EnemyInstance GetRandomEnemyPrefab()
+    {
+        var enemyPrefabs = new List<EnemyInstance>
+        {
+            commonEnemyPrefab,
+            rusherEnemyPrefab
+        };
+        
+        return enemyPrefabs[Random.Range(0, enemyPrefabs.Count)];
+    }
+
+    [ContextMenu(nameof(SpawnEnemy))] private void SpawnEnemy(Action<EnemyInstance> onSpawn)
     {
         var position = GameField.current.GetRandomPointWithin();
-        var enemy = Instantiate(enemyPrefab, position, transform.rotation);
+        var enemy = Instantiate(GetRandomEnemyPrefab(), position, transform.rotation);
 
         _instances.Add(enemy);
 
