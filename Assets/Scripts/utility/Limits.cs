@@ -90,7 +90,15 @@ namespace utility
             "Penny Tration",
             "Phil McCrackin",
             "Rick O'Shea",
-            "Robyn Banks"
+            "Robyn Banks",
+            "Sam Sung",
+            "Sponge Bob",
+
+            "Honorable Mention",
+            "Tata Rih",
+            "Bruce Galik",
+            "Team Oha",
+            "Vla Dick",
         };
             
         public static string GetRandomName()

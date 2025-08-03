@@ -191,8 +191,8 @@ public class GameManager : MonoBehaviour
         const int variety = 100;
         var discount = _goalNumber switch
         {
-            2 => 90,
-            3 => 60,
+            2 => 96,
+            3 => 64,
             _ => 0
         };
 

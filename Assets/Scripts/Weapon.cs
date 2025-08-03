@@ -38,7 +38,7 @@ public class Weapon : MonoBehaviour
 
             modifiedDamage = mod.Strategy.GetModifiedValue(aliveState, modifiedDamage);
         }
-        return modifiedDamage;
+        return (float)Math.Round(modifiedDamage);
     }
 
     public void SetBurnEffect(bool shouldBurn)
