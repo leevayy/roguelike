@@ -138,7 +138,7 @@ public class EnemyInstance : MonoBehaviour, utility.IAliveEntity
         
         if (nextHealthPoints <= 0 && isAlive)
         {
-            GameManager.instance.OnKill();
+            GameManager.instance.OnKill(transform.position);
         }
 
         healthPoints = nextHealthPoints;

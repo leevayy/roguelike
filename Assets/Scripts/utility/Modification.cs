@@ -10,7 +10,7 @@ namespace utility
         AddMultiplyValue,
         MultiplyMultiplyValue,
         RubberDuck,
-        // turns out too OP, too much pain in the ass when you try to think about other mods interactions
+        // turns out too OP + too much pain in the ass when you try to think about other mods interactions
         // MoneyEqualsLife,
         MoveSpeedIncrease,
         HealOnKill,
@@ -21,6 +21,16 @@ namespace utility
         GhostLaser,
         OneshotInTheAir,
         Desperation,
+        // not implemented
+        // BulletTime,
+        GlassCannon,
+        MultishotMadness,
+        Berserker,
+        SpeedDemon,
+        // buggy 
+        // ExplosiveFinish,
+        Rampage,
+        Momentum,
     }
 
     public class Modification
@@ -76,42 +86,16 @@ namespace utility
                 ModificationType.RubberDuck => new RubberDuckModification(),
                 ModificationType.OneshotInTheAir => new OneshotInTheAirModification(),
                 ModificationType.Desperation => new DesperationModification(),
-                _ => throw new System.ArgumentException($"Unknown modification type: {modType}"),
+                ModificationType.SpeedDemon => new SpeedDemonModification(),
+                ModificationType.Rampage => new RampageModification(),
+                // ModificationType.BulletTime => new BulletTimeModification(),
+                ModificationType.GlassCannon => new GlassCannonModification(),
+                ModificationType.MultishotMadness => new MultishotMadnessModification(),
+                ModificationType.Berserker => new BerserkerModification(),
+                // ModificationType.ExplosiveFinish => new ExplosiveFinishModification(),
+                ModificationType.Momentum => new MomentumModification(),
+                _ => throw new ArgumentException($"Unknown modification type: {modType}"),
             };
-        }
-    }
-
-    // We still need to create these two missing concrete modification classes
-    public class AddFlatValueModification : BaseModification
-    {
-        public override string Name => "Плоский урон";
-        public override string Description => "Добавляет 15 единиц урона";
-        public override UnityEngine.Material Material => Resources.Load<Material>("Materials/AddFlatValueLens");
-
-        public override float GetModifiedValue(utility.AliveState aliveState, float baseValue) => baseValue + 15f;
-    }
-
-    public class AddMultiplyValueModification : BaseModification
-    {
-        public override string Name => "Множитель урона";
-        public override string Description => "Умножает урон в 2 раза";
-        public override UnityEngine.Material Material => Resources.Load<Material>("Materials/AddMultiplyValueLens");
-
-        public override float GetModifiedValue(utility.AliveState aliveState, float baseValue) => baseValue * 2f;
-    }
-
-    public class RubberDuckModification : BaseModification
-    {
-        public override string Name => "Резиновая утка";
-        public override string Description => "Призывает полезного компаньона-утку";
-        public override UnityEngine.Material Material => Resources.Load<Material>("Materials/RubberDuckLens");
-
-        // This modification might need special handling during game initialization
-        // For now, we'll keep it simple and implement the basic interface
-        public override void ApplyOnUpdate(utility.AliveState aliveState)
-        {
-            // RubberDuck logic would go here - possibly spawning a companion
-            // This might need to be handled differently, possibly in GameManager
         }
     }
 }

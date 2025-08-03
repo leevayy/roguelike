@@ -8,40 +8,28 @@ using utility;
 public class DesperationModification : BaseModification
 {
     public override string Name => "Отчаяние";
-    public override string Description => "Увеличивает скорость когда здоровье низкое";
-    public override Material Material => Resources.Load<Material>("Materials/MoveSpeedLens");
+    public override string Description => "Увеличивает скорость когда здоровье низкое + дает второй шанс";
+    public override Material Material => Resources.Load<Material>("Materials/MovementLens");
+    public override bool IsNotModifyingDamage => false;
+    public override Rarity Rarity => Rarity.Rare;
 
-    public override void ApplyOnUpdate(utility.AliveState aliveState)
+    public override float GetModifiedValue(AliveState aliveState, float baseValue)
     {
-        // This modification works for both players and enemies using AliveState
+        // Only modify speed values for low health entities
         if (aliveState.IsLowHealth && aliveState.IsAlive)
         {
             // Increase movement speed based on how low health is
             var speedBoost = (1.0f - aliveState.HealthPercentage) * 10f;
-            
-            // For players, use the MovementManager
-            var player = aliveState.Transform.GetComponent<Player>();
-            if (player != null)
-            {
-                player.SetAdditionalSpeed(speedBoost);
-                return;
-            }
-            
-            // For enemies, we could apply speed boost differently
-            var enemy = aliveState.Transform.GetComponent<Enemy>();
-            if (enemy != null)
-            {
-                // Enemy speed boost would be applied here
-                // This demonstrates how we can handle different entity types
-                Debug.Log($"Enemy {aliveState.Transform.name} gains speed boost: {speedBoost}");
-            }
+            return baseValue + speedBoost;
         }
+
+        return baseValue;
     }
 
-    public override float ModifyIncomingDamage(utility.AliveState aliveState, float damage)
+    public override float ModifyIncomingDamage(AliveState aliveState, float damage)
     {
         // Reduce damage when health is very low (last stand effect)
-        if (aliveState.HealthPercentage < 0.1f)
+        if (aliveState.IsLowHealth)
         {
             return damage * 0.5f; // 50% damage reduction
         }

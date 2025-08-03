@@ -53,7 +53,7 @@ public class GameUI : MonoBehaviour
 
     public void UpdateScore(int score)
     {
-        _scoreText.text = $"${score}";
+        _scoreText.text = $"💵: ${score}";
     }
 
     public void UpdateTimer(float timeInSeconds)

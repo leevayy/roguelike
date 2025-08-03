@@ -5,7 +5,9 @@ public abstract class BaseModification : IModification
 {
     public virtual string Name => "";
     public virtual string Description => "";
-    public virtual UnityEngine.Material Material => null;
+    public virtual Material Material => null;
+    public virtual bool IsNotModifyingDamage => false;
+    public virtual Rarity Rarity => Rarity.Common;
 
     public virtual void ApplyOnShoot(Weapon weapon, float damage) { }
     public virtual float ModifyIncomingDamage(AliveState aliveState, float damage) => damage;

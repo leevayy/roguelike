@@ -170,7 +170,9 @@ public class GameManager : MonoBehaviour
     {
         timeElapsed += Time.deltaTime;
 
-        if (player.Healthpoints <= 0 && score <= 0)
+        // if (player.Healthpoints <= 0 || mods.include(money=life) && score <= 0)
+
+        if (player.Healthpoints <= 0)
         {
             ShowGameOverScreen(false);
         }
@@ -185,7 +187,6 @@ public class GameManager : MonoBehaviour
 
     public void RerollShop()
     {
-        // var minPrice = Mathf.Max(10f * _goalNumber * 1.5f + (_goalNumber - 2) * 100 - 75, 30);
         const int minPrice = 300;
         const int variety = 100;
         var discount = _goalNumber switch
@@ -239,9 +240,14 @@ public class GameManager : MonoBehaviour
     
     [ContextMenu(nameof(OnKill))] public void OnKill()
     {
+        OnKill(Vector3.zero); // Default position for menu command
+    }
+
+    public void OnKill(Vector3 enemyPosition)
+    {
         score += GetInterest() + Random.Range(7, 9);
 
-        player.modManager.ApplyOnKill(player.GetAliveState());
+        player.modManager.ApplyOnKill(player.GetAliveState(), enemyPosition);
         
         killCount++;
     }
@@ -281,7 +287,7 @@ public class GameManager : MonoBehaviour
             
         playerRb.mass = Mathf.Max(1 + mass, 0.5f);
 
-        player.SetAdditionalSpeed(Mathf.Max(-1 * mass, 0));
+        player.SetMoneyBagWeight(Mathf.Max(-1 * mass, 0));
 
         var scaleAddition = mass <= 4f 
             ? new Vector3(Mathf.Max(0.1f * mass, -1f), 0, 0)

@@ -4,10 +4,11 @@ using utility;
 
 public class OneshotInTheAirModification : BaseModification
 {
-    const int AIRSHOT_DAMAGE = 9999;
+    const float AIRSHOT_DAMAGE = 9999f;
     public override string Name => "Oneshot Trickshot";
     public override string Description => $"Выстрелы в воздухе наносят {AIRSHOT_DAMAGE} урона";
-    public override Material Material => Resources.Load<Material>("Materials/MoveSpeedLens");
+    public override Material Material => Resources.Load<Material>("Materials/DamageLens");
+    public override Rarity Rarity => Rarity.Epic;
 
     public override float GetModifiedValue(AliveState aliveState, float baseValue)
     {

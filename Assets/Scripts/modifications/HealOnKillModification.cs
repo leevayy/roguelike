@@ -3,13 +3,15 @@ using utility;
 
 public class HealOnKillModification : BaseModification
 {
-    public override string Name => "Лечение за убийство";
-    public override string Description => "Восстанавливает здоровье при убийстве врага";
-    public override Material Material => Resources.Load<Material>("Materials/HealOnKillLens");
+    public override string Name => "Heal on Kill";
+    public override string Description => "Восстанавливает хп при убийстве";
+    public override Material Material => Resources.Load<Material>("Materials/DefenseLens");
+    public override Rarity Rarity => Rarity.Rare;
 
-    public override void ApplyOnKill(utility.AliveState aliveState)
+    public override void ApplyOnKill(AliveState aliveState)
     {
-        // This modification only works for players - check if we can cast to player
+        // TODO: Architectural violation - this should ideally use an event system or interface method
+        // Currently needed because healing is player-specific functionality not available through AliveState
         var player = aliveState.Transform.GetComponent<Player>();
         if (player != null)
         {

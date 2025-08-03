@@ -41,7 +41,10 @@ public class StoreItem
     public StoreItem(Modification mod, float p, float discount) : this(mod, p)
     {
         price = Mathf.Round(p * (100 - discount) / 100);
-        name += $"($-{discount}%)";
+        if (discount > 0)
+        {
+            name += $"(-{discount}%)";
+        }
     }
 
     public StoreItem(StoreItemType itemType)

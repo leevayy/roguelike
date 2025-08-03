@@ -221,9 +221,9 @@ public class Player : MonoBehaviour, utility.IAliveEntity
         cam.transform.position = Vector3.SmoothDamp(cam.transform.position, targetPosition, ref _cameraVelocity, 0.25f);
     }
 
-    public void SetAdditionalSpeed(float additionalSpeed)
+    public void SetMoneyBagWeight(float weight)
     {
-        _movementManager.additionalSpeed = additionalSpeed;
+        _movementManager.additionalSpeed = weight;
     }
 
     private Vector3 GetMouseWorldPosition()

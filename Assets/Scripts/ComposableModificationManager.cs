@@ -50,9 +50,22 @@ public class ComposableModificationManager : MonoBehaviour
 
     public void ApplyOnKill(utility.AliveState aliveState)
     {
+        ApplyOnKill(aliveState, Vector3.zero); // Default for backward compatibility
+    }
+
+    public void ApplyOnKill(utility.AliveState aliveState, Vector3 enemyPosition)
+    {
         foreach (var mod in _modifications)
         {
-            mod.Strategy.ApplyOnKill(aliveState);
+            // For ExplosiveFinish, we need to pass the enemy position
+            if (mod.Strategy is ExplosiveFinishModification explosiveFinish)
+            {
+                explosiveFinish.ApplyOnKill(aliveState, enemyPosition);
+            }
+            else
+            {
+                mod.Strategy.ApplyOnKill(aliveState);
+            }
         }
     }
 
@@ -64,7 +77,7 @@ public class ComposableModificationManager : MonoBehaviour
         }
     }
 
-    public float ModifyIncomingDamage(utility.AliveState aliveState, float damage)
+    public float ModifyIncomingDamage(AliveState aliveState, float damage)
     {
         var modifiedDamage = damage;
         foreach (var mod in _modifications)
@@ -74,7 +87,7 @@ public class ComposableModificationManager : MonoBehaviour
         return modifiedDamage;
     }
 
-    public float GetModifiedValue(utility.AliveState aliveState, float baseValue, ModificationType type)
+    public float GetModifiedValue(AliveState aliveState, float baseValue, ModificationType type)
     {
         var modifiedValue = baseValue;
         var mods = _modifications.Where(mod => mod.Type == type);
@@ -101,26 +114,5 @@ public class ComposableModificationManager : MonoBehaviour
         {
             mod.Strategy.ApplyOnTakeDamage(aliveState, damage);
         }
-    }
-
-    // Legacy methods for backward compatibility with Player objects
-    public void ApplyOnUpdate(Player player)
-    {
-        ApplyOnUpdate(player.GetAliveState());
-    }
-
-    public void ApplyOnKill(Player player)
-    {
-        ApplyOnKill(player.GetAliveState());
-    }
-
-    public float ModifyIncomingDamage(Player player, float damage)
-    {
-        return ModifyIncomingDamage(player.GetAliveState(), damage);
-    }
-
-    public void ApplyOnTakeDamage(Player player, float damage)
-    {
-        ApplyOnTakeDamage(player.GetAliveState(), damage);
     }
 }

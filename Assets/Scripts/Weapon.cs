@@ -34,6 +34,8 @@ public class Weapon : MonoBehaviour
         var modifiedDamage = flatDamage;
         foreach (var mod in modifications)
         {
+            if (mod.Strategy.IsNotModifyingDamage) continue;
+
             modifiedDamage = mod.Strategy.GetModifiedValue(aliveState, modifiedDamage);
         }
         return modifiedDamage;

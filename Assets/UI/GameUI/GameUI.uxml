@@ -15,7 +15,7 @@
             <ui:VisualElement>
                 <ui:TextElement class="hp" name="hp" text="❤️: 0" />
                 <ui:TextElement class="kills" name="kills" text="☠️: 0 (+$0)" />
-                <ui:TextElement class="score" name="score" text="$0" />
+                <ui:TextElement class="score" name="score" text="💵: $0" />
             </ui:VisualElement>
             <ui:VisualElement>
                 <ui:TextElement name="lens" text="Линзы" />

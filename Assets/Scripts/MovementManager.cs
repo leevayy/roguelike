@@ -42,6 +42,10 @@ public class MovementManager : MonoBehaviour
         if (_modManager != null)
         {
             compoundSpeed = _modManager.GetModifiedValue(aliveState: _getAliveState(), compoundSpeed, ModificationType.MoveSpeedIncrease);
+
+            compoundSpeed = _modManager.GetModifiedValue(aliveState: _getAliveState(), compoundSpeed, ModificationType.Desperation);
+
+            compoundSpeed = _modManager.GetModifiedValue(aliveState: _getAliveState(), compoundSpeed, ModificationType.SpeedDemon);
         }
 
         return compoundSpeed;
