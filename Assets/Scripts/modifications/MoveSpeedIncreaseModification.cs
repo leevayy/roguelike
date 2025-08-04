@@ -11,6 +11,6 @@ public class MoveSpeedIncreaseModification : BaseModification
 
     public override float GetModifiedValue(AliveState aliveState, float baseValue)
     {
-        return baseValue + 15f;
+        return baseValue + 5f;
     }
 }

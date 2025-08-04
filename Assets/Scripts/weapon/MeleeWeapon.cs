@@ -44,7 +44,7 @@ public class MeleeWeapon : Weapon
 
         _sinceLastShot = 0;
 
-        Debug.Log("MeleeWeapon: Attacking with melee.");
+        
         OnShoot?.Invoke();
         // Play melee sound
         if (meleeSound)
@@ -67,22 +67,22 @@ public class MeleeWeapon : Weapon
     {
         var attackPosition = transform.position;
         
-        // Debug logging to help identify issues
-        Debug.Log($"Melee attack at {attackPosition}, range: {meleeRange}");
+        // 
+        
         
         // Find all colliders in range - use -1 for all layers initially
         var hitColliders = Physics.OverlapSphere(attackPosition, meleeRange, -1);
         
-        Debug.Log($"Found {hitColliders.Length} potential targets");
+        
         
         foreach (var hitCollider in hitColliders)
         {
-            Debug.Log($"Checking target: {hitCollider.name}, tag: {hitCollider.tag}");
+            
             
             // For enemy weapons attacking player, skip angle check - just hit if in range
             if (!isOwnerPlayer && hitCollider.CompareTag("Player"))
             {
-                Debug.Log($"Enemy melee weapon hitting player directly (no angle check)");
+                
                 DealDamageToTarget(hitCollider, damage, modifications);
                 continue;
             }
@@ -92,24 +92,24 @@ public class MeleeWeapon : Weapon
             var directionToTarget = (hitCollider.transform.position - attackPosition).normalized;
             var angleToTarget = Vector3.Angle(attackDirection, directionToTarget);
             
-            Debug.Log($"Angle to target {hitCollider.name}: {angleToTarget}° (max: {meleeAngle / 2f}°)");
+            
             
             if (angleToTarget <= meleeAngle / 2f)
             {
                 // Check if it's a valid target
                 if (IsValidTarget(hitCollider))
                 {
-                    Debug.Log($"Valid target found: {hitCollider.name}, dealing {damage} damage");
+                    
                     DealDamageToTarget(hitCollider, damage, modifications);
                 }
                 else
                 {
-                    Debug.Log($"Invalid target: {hitCollider.name}");
+                    
                 }
             }
             else
             {
-                Debug.Log($"Target {hitCollider.name} outside attack angle");
+                
             }
         }
     }    private bool IsValidTarget(Collider target)
@@ -120,14 +120,14 @@ public class MeleeWeapon : Weapon
             // Player's melee weapon should hit enemies
             var isEnemy = target.CompareTag("Enemy");
             var hasHitbox = target.GetComponent<Hitbox>() != null;
-            Debug.Log($"Player weapon checking {target.name}: isEnemy={isEnemy}, hasHitbox={hasHitbox}");
+            
             return isEnemy && hasHitbox;
         }
         else
         {
             // Enemy's melee weapon should hit player
             var isPlayer = target.CompareTag("Player");
-            Debug.Log($"Enemy weapon checking {target.name}: isPlayer={isPlayer}");
+            
             return isPlayer;
         }
     }

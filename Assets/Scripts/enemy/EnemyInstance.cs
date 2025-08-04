@@ -100,8 +100,6 @@ public class EnemyInstance : MonoBehaviour, utility.IAliveEntity
 
                     Throwback(hitDirection);
                 }
-
-                Destroy(other.gameObject);
             }            
         });
     }

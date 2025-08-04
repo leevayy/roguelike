@@ -86,17 +86,4 @@ public class Duck : MonoBehaviour
         // Update the position
         transform.position = nextPosition;
     }
-    
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Enemy"))
-        {
-            var enemyScript = collision.gameObject.GetComponentInParent<EnemyInstance>();
-
-            if (!enemyScript.isAlive)
-            {
-                Destroy(enemyScript.gameObject);
-            }
-        }
-    }
 }

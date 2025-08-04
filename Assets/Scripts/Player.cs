@@ -113,8 +113,6 @@ public class Player : MonoBehaviour, utility.IAliveEntity
                 new HitInfo(GameHitEntity.Enemy, damage, laser.shotId),
                 GameHitEntity.Ally,
                 collisionPoint);
-
-            Destroy(other.gameObject);
         });
 
         AfterStart?.Invoke(this);
@@ -259,13 +257,7 @@ public class Player : MonoBehaviour, utility.IAliveEntity
 
     private void Shoot()
     {
-        var projectileCount = modManager.GetProjectileCount(1);
-        
-        for (var i = 0; i < projectileCount; i++)
-        {
-            weapon.Shoot(GetAliveState(), transform.rotation, modManager.GetModifications());
-        }
-        
+        weapon.Shoot(GetAliveState(), transform.rotation, modManager.GetModifications());
         _characterAnimationController.FireAnimation();
     }
 

@@ -252,5 +252,23 @@ public class Enemy : MonoBehaviour
         StopMoving();
         PickTarget(null);
         _ragdollController.Die();
+
+        var player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            var enemyColliders = GetComponentsInChildren<Collider>();
+            var playerColliders = player.GetComponentsInChildren<Collider>();
+            
+            foreach (var enemyCol in enemyColliders)
+            {
+                foreach (var playerCol in playerColliders)
+                {
+                    if (enemyCol != null && playerCol != null)
+                    {
+                        Physics.IgnoreCollision(enemyCol, playerCol, true);
+                    }
+                }
+            }
+        }
     }
 }

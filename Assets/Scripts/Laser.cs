@@ -43,9 +43,7 @@ public class Laser : MonoBehaviour
     }
 
     private void OnCollisionEnter(Collision collision)
-    {
-        if (isSolid) return;
-        
+    {        
         if (collision.gameObject.CompareTag("AllyProjectile") || collision.gameObject.CompareTag("EnemyProjectile"))
         {
             var laser = collision.gameObject.GetComponent<Laser>();
@@ -60,6 +58,8 @@ public class Laser : MonoBehaviour
         {
             return;
         }
+
+        if (isSolid) return;
         
         Destroy(gameObject);
     }

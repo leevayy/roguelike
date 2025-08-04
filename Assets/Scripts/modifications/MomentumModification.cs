@@ -24,19 +24,4 @@ public class MomentumModification : BaseModification
 
         return baseValue;
     }
-
-    public override void ApplyOnUpdate(AliveState aliveState)
-    {
-        // Get rigidbody directly from the transform (works for any entity)
-        var rigidbody = aliveState.Transform.GetComponent<Rigidbody>();
-        if (rigidbody != null && Time.time % 1f < Time.deltaTime)
-        {
-            float speed = rigidbody.linearVelocity.magnitude;
-            float bonus = Mathf.Min(speed * 30f, 200f);
-            if (bonus > 10f)
-            {
-                Debug.Log($"Momentum: {bonus:F0}% damage bonus from movement speed!");
-            }
-        }
-    }
 }

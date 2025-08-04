@@ -20,11 +20,11 @@ public class RusherEnemy : Enemy
         if (meleeWeapon != null)
         {
             meleeWeapon.SetMeleeRange(meleeRange);
-            Debug.Log($"Set melee weapon range to {meleeRange}");
+            
         }
         else
         {
-            Debug.Log("No MeleeWeapon component found");
+            
         }
     }
 
@@ -51,7 +51,7 @@ public class RusherEnemy : Enemy
         if (distanceToTarget <= meleeRange * 1.2f)
         {
             _isMoving = false;
-            Debug.Log($"RusherEnemy in melee range: distance={distanceToTarget}, meleeRange={meleeRange}");
+            
             Shoot(); // This will use the melee weapon
             return;
         }
@@ -111,16 +111,17 @@ public class RusherEnemy : Enemy
             await Awaitable.NextFrameAsync();
         }
         
-        // Attack if we're close enough after rushing
+        
+        if (!_target) return;
+        
         var finalDistance = Vector3.Distance(transform.position, _target.transform.position);
         if (finalDistance <= meleeRange * 1.2f)
         {
-            Debug.Log($"RusherEnemy attacking after rush: distance={finalDistance}, meleeRange={meleeRange}");
             Shoot(); // Melee attack
         }
         else
         {
-            Debug.Log($"RusherEnemy too far after rush: distance={finalDistance}, meleeRange={meleeRange}");
+            
         }
     }
 }
