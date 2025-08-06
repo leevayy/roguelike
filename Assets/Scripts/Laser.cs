@@ -6,12 +6,12 @@ using UnityEngine;
 public class Laser : MonoBehaviour
 {
     [SerializeField] private float speed = 20f;
-    [SerializeField] private float lifetime = 5f;
     [SerializeField] private Rigidbody rb;
     
     public int shotId { get; set; }
     public float damage { get; set; }
     public bool isBurn { get; set; }
+    public float ttl { get; set; } = 5f;
 
     private bool _isSolid;
     public bool isSolid
@@ -30,7 +30,7 @@ public class Laser : MonoBehaviour
 
     private void Start()
     {
-        Destroy(gameObject, lifetime);
+        Destroy(gameObject, ttl);
     }
 
     private void Update()

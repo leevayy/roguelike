@@ -264,13 +264,14 @@ public class Player : MonoBehaviour, utility.IAliveEntity
     private void AddModification(Modification modification, string name)
     {
         modManager.AddModification(modification);
+        modManager.ApplyOnPickUp(GetAliveState());
         
         // Create visual representation of the modification
         if (modificationPrefab != null)
         {
             var modObject = Instantiate(modificationPrefab, weapon.transform);
             _modObjects.Add(modObject);
-            
+
             var modificationObjectComponent = modObject.GetComponent<ModificationObject>();
             if (modificationObjectComponent != null)
             {
@@ -284,6 +285,7 @@ public class Player : MonoBehaviour, utility.IAliveEntity
     public void RemoveModification(ModificationType modificationType)
     {
         modManager.RemoveAllModifiersOfType(modificationType);
+        modManager.ApplyOnDrop(GetAliveState());
     }
 
     public void Heal(float part = 1)

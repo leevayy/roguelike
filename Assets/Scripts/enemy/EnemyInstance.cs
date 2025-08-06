@@ -3,13 +3,14 @@ using JetBrains.Annotations;
 using UnityEngine;
 using utility;
 
-public class EnemyInstance : MonoBehaviour, utility.IAliveEntity
+public class EnemyInstance : MonoBehaviour, IAliveEntity
 {
     [SerializeField] private AudioSource maxVerstappenSound;
     [SerializeField] private Enemy enemy;
     private string _name;
     private float _maxHealthPoints = 100f;
     private float _healthPoints = 100f;
+    private bool _isPredictionEnabled = false;
 
     [CanBeNull] public Action<float, float> onHealthPointsChange { private get; set; }
     [CanBeNull] public Action onDispose { private get; set; }
@@ -43,9 +44,9 @@ public class EnemyInstance : MonoBehaviour, utility.IAliveEntity
     public Transform Transform => transform;
     public ComposableModificationManager ModManager => modManager;
 
-    public utility.AliveState GetAliveState()
+    public AliveState GetAliveState()
     {
-        var aliveState = new utility.AliveState(
+        var aliveState = new AliveState(
             IsAlive,
             IsGrounded,
             HealthPoints,
@@ -57,15 +58,23 @@ public class EnemyInstance : MonoBehaviour, utility.IAliveEntity
 
         return aliveState;
     }
+    
+    public void EnablePrediction(ComposableModificationManager attackerModManager)
+    {
+        if (attackerModManager.CountMod(ModificationType.PredictionModification) > 0)
+        {
+            _isPredictionEnabled = true;
+        }
+    }
 
-    private void Awake()
+    public void Initialize()
     {
         modManager = gameObject.AddComponent<ComposableModificationManager>();
-        enemy.Initialize(modManager, () => GetAliveState());
+        enemy.Initialize(modManager, () => GetAliveState(), _isPredictionEnabled);
 
         _name = RandomName.GetRandomName();
         gameObject.name = _name;
-            
+
         enemy.GetHitbox().SetOnTriggerEnterHandler((other, hitbox) =>
         {
             if (!isAlive)
@@ -100,7 +109,7 @@ public class EnemyInstance : MonoBehaviour, utility.IAliveEntity
 
                     Throwback(hitDirection);
                 }
-            }            
+            }
         });
     }
 

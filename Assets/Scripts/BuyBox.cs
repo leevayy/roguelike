@@ -63,8 +63,6 @@ public class BuyBox : MonoBehaviour
     {
         if (_isWithinRange && (Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.F)))
         {
-            ControlGuide.instance.CompletedF();
-            
             if (_isElevatorButton)
             {
                 _onElevatorButtonPressed?.Invoke();

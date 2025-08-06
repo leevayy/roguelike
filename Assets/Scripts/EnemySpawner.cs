@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
@@ -13,7 +14,9 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private EnemyInstance rusherEnemyPrefab;
 
     private readonly List<EnemyInstance> _instances = new List<EnemyInstance>();
-    [CanBeNull] private Action<EnemyInstance> _cachedOnSpawn;
+    [CanBeNull] private Action<EnemyInstance> _onSpawnAfterInitialize;
+    [CanBeNull] private Action<EnemyInstance> _onSpawnBeforeInitialize;
+
     private Awaitable _currentAction;
     
     public ReadOnlyCollection<EnemyInstance> enemies => _instances.AsReadOnly();
@@ -26,7 +29,12 @@ public class EnemySpawner : MonoBehaviour
     public void SpawnEnemies(Action<EnemyInstance> onSpawn)
     {
         _shouldSpawn = true;
-        _cachedOnSpawn = onSpawn;
+        _onSpawnAfterInitialize = onSpawn;
+    }
+
+    public void SetOnSpawnBeforeInitialize(Action<EnemyInstance> onSpawn)
+    {
+        _onSpawnBeforeInitialize = onSpawn;
     }
 
     // Step 2: Spawning loop (called only when player is inside)
@@ -56,7 +64,7 @@ public class EnemySpawner : MonoBehaviour
 
             if (_playerInside) // Ensure player is still inside
             {
-                SpawnEnemy(_cachedOnSpawn);
+                SpawnEnemy(_onSpawnAfterInitialize, _onSpawnBeforeInitialize);
             }
         }
 
@@ -90,16 +98,20 @@ public class EnemySpawner : MonoBehaviour
         return enemyPrefabs[Random.Range(0, enemyPrefabs.Count)];
     }
 
-    [ContextMenu(nameof(SpawnEnemy))] private void SpawnEnemy(Action<EnemyInstance> onSpawn)
+    [ContextMenu(nameof(SpawnEnemy))] private void SpawnEnemy(Action<EnemyInstance> onSpawnAfterInitialize, Action<EnemyInstance> onSpawnBeforeInitialize)
     {
         var position = GameField.current.GetRandomPointWithin();
         var enemy = Instantiate(GetRandomEnemyPrefab(), position, transform.rotation);
 
+        onSpawnBeforeInitialize?.Invoke(enemy);
+
+        enemy.Initialize();
+
+        onSpawnAfterInitialize?.Invoke(enemy);
+
         _instances.Add(enemy);
 
         enemy.onDispose = () => _instances.Remove(enemy);
-
-        onSpawn?.Invoke(enemy);
     }
 
     private void OnTriggerEnter(Collider other)

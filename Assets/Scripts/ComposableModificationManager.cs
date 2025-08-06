@@ -40,11 +40,27 @@ public class ComposableModificationManager : MonoBehaviour
 
     // --- New Hook-based Methods ---
 
-    public void ApplyOnUpdate(utility.AliveState aliveState)
+    public void ApplyOnUpdate(AliveState aliveState)
     {
         foreach (var mod in _modifications)
         {
             mod.Strategy.ApplyOnUpdate(aliveState);
+        }
+    }
+
+    public void ApplyOnPickUp(AliveState aliveState)
+    {
+        foreach (var mod in _modifications)
+        {
+            mod.Strategy.ApplyOnPickUp(aliveState);
+        }
+    }
+
+    public void ApplyOnDrop(AliveState aliveState)
+    {
+        foreach (var mod in _modifications)
+        {
+            mod.Strategy.ApplyOnDrop(aliveState);
         }
     }
 

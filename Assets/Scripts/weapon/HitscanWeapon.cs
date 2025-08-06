@@ -10,13 +10,10 @@ class HitscanWeapon : Weapon
     const float LASER_WIDTH = 0.1f;
     const float LASER_ALPHA = 0.8f;
     private const float LASER_TTL = 0.1f;
-    private LineRenderer _lineRenderer;
-    private Awaitable _currentTask;
+    private const float RECOIL = 0.05f;
 
-    private void Awake()
-    {
-        CreateLineRenderer();
-    }
+    // private LineRenderer lineRenderer;
+    private Awaitable _currentTask;
 
     protected override void PerformShot(Vector3 position, Vector3 direction, Quaternion rotation, float damage, int shotId, Action<GameObject, Laser, Quaternion, float, int> applyLaserData, ReadOnlyCollection<Modification> modifications, int projectileCount = 1)
     {
@@ -29,65 +26,61 @@ class HitscanWeapon : Weapon
         {
             var directionWithRecoil = GetDirectionWithRecoil(direction);
 
-            var isHit = Physics.Raycast(transform.position, directionWithRecoil, out var hit, 100f);
-
-            var hitPoint = isHit ? hit.point : transform.position + directionWithRecoil * 100f;
-
-            _ = DrawLaser(transform.position, hitPoint);
-
-            if (isHit)
-            {
-                TryHitTarget(hit, applyLaserData, rotation, damage, shotId);    
-            }
+            ShootLaser(directionWithRecoil, applyLaserData, rotation, damage, shotId);
         }
+    }
+
+    private void ShootLaser(Vector3 directionWithRecoil, Action<GameObject, Laser, Quaternion, float, int> applyLaserData, Quaternion rotation, float damage, int shotId)
+    {
+        var isHit = Physics.Raycast(transform.position, directionWithRecoil, out var hit, 100f);
+
+        var hitPoint = isHit ? hit.point : transform.position + directionWithRecoil * 100f;
+
+        var targetPosition = isHit ? hit.transform.position : hitPoint;
+
+        var laserHit = CreateLaserObject(targetPosition, applyLaserData, rotation, damage, shotId);
+
+        var lineRenderer = CreateLineRenderer(laserHit);
+
+        _ = DrawLaser(lineRenderer, transform.position, hitPoint);
     }
 
     private Vector3 GetDirectionWithRecoil(Vector3 direction)
     {
-        var recoil = 0.1f; // Example recoil value, adjust as needed
-        direction += new Vector3(UnityEngine.Random.Range(-recoil, recoil), UnityEngine.Random.Range(-recoil, recoil), 0);
+        direction += new Vector3(UnityEngine.Random.Range(-RECOIL, RECOIL), UnityEngine.Random.Range(-RECOIL, RECOIL), 0);
         direction.Normalize();
 
         return direction;
     }
 
-    private void TryHitTarget(RaycastHit hit, Action<GameObject, Laser, Quaternion, float, int> applyLaserData, Quaternion rotation, float damage, int shotId)
-    {
-        var targetCollider = hit.collider;
-
-        var laserCollider = CreateLaserObject(hit.collider, applyLaserData, rotation, damage, shotId);
-
-        // targetCollider.SendMessage("OnTriggerEnter", laserCollider, SendMessageOptions.DontRequireReceiver);
-    }
-
-    private Collider CreateLaserObject(Collider target, Action<GameObject, Laser, Quaternion, float, int> applyLaserData, Quaternion rotation, float damage, int shotId)
+    private GameObject CreateLaserObject(Vector3 targetPosition, Action<GameObject, Laser, Quaternion, float, int> applyLaserData, Quaternion rotation, float damage, int shotId)
     {
         var laserHit = new GameObject("LaserHit");
         laserHit.tag = isOwnerPlayer ? "AllyProjectile" : "EnemyProjectile";
         // this line triggers the collision
         // feels hacky but just as hacky as all of the virtual laser creation stuff
-        laserHit.transform.position = target.transform.position;
-
-        var laser = laserHit.AddComponent<Laser>();
+        laserHit.transform.position = targetPosition;
         
         var collider = laserHit.AddComponent<SphereCollider>();
         collider.isTrigger = true;
         collider.radius = 0.1f;
 
         var rb = laserHit.AddComponent<Rigidbody>();
-
+        
+        var laser = laserHit.AddComponent<Laser>();
+        laser.ttl = LASER_TTL;
         applyLaserData(laserHit, laser, rotation, damage, shotId);
 
-        return collider;
+        return laserHit;
     }
 
-    private async Awaitable DrawLaser(Vector3 start, Vector3 end)
+    private async Awaitable DrawLaser(LineRenderer lineRenderer, Vector3 start, Vector3 end)
     {
         _currentTask?.Cancel();
 
-        _lineRenderer.SetPositions(new Vector3[] { start, end });
+        lineRenderer.SetPositions(new Vector3[] { start, end });
 
-        _lineRenderer.enabled = true;
+        lineRenderer.enabled = true;
 
         try
         {
@@ -95,17 +88,17 @@ class HitscanWeapon : Weapon
             await _currentTask;
 
             _currentTask = null;
-            _lineRenderer.enabled = false;
+            lineRenderer.enabled = false;
         }
         catch (OperationCanceledException) { }
     }
 
-    private LineRenderer CreateLineRenderer()
+    private LineRenderer CreateLineRenderer(GameObject holder)
     {
-        _lineRenderer = gameObject.AddComponent<LineRenderer>();
+        var lineRenderer = holder.AddComponent<LineRenderer>();
 
-        _lineRenderer.startWidth = LASER_WIDTH;
-        _lineRenderer.endWidth = LASER_WIDTH;
+        lineRenderer.startWidth = LASER_WIDTH;
+        lineRenderer.endWidth = LASER_WIDTH;
 
         var gradient = new Gradient();
         gradient.SetKeys(
@@ -113,12 +106,12 @@ class HitscanWeapon : Weapon
             new GradientAlphaKey[] { new(LASER_ALPHA, 0f) }
         );
 
-        _lineRenderer.colorGradient = gradient;
+        lineRenderer.colorGradient = gradient;
 
-        _lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
 
-        _lineRenderer.enabled = false;
+        lineRenderer.enabled = false;
 
-        return _lineRenderer;
+        return lineRenderer;
     }
 }

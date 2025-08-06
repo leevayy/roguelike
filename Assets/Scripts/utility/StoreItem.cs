@@ -61,6 +61,7 @@ public class StoreItem
         var modifier = GetRarityPriceModificator(mod.Strategy.Rarity);
 
         price = Mathf.Round(p * modifier * (100 - discount) / 100);
+        
         if (discount > 0)
         {
             name += $"(-{discount}%)";

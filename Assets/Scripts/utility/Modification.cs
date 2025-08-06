@@ -31,6 +31,8 @@ namespace utility
         // ExplosiveFinish,
         Rampage,
         Momentum,
+        HalfDamageAndTaken,
+        PredictionModification
     }
 
     public class Modification
@@ -94,6 +96,8 @@ namespace utility
                 ModificationType.Berserker => new BerserkerModification(),
                 // ModificationType.ExplosiveFinish => new ExplosiveFinishModification(),
                 ModificationType.Momentum => new MomentumModification(),
+                ModificationType.HalfDamageAndTaken => new HalfDamageAndTakenModification(),
+                ModificationType.PredictionModification => new PredictionModification(),
                 _ => throw new ArgumentException($"Unknown modification type: {modType}"),
             };
         }

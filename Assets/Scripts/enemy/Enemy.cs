@@ -14,6 +14,9 @@ public class Enemy : MonoBehaviour
     [SerializeField] private Hitbox hitbox;
     
     private ComposableModificationManager _modManager;
+    private GameObject _predictionDummy;
+    private LineRenderer _lineRenderer;
+    protected Vector3 _targetPosition;
     
     protected Rigidbody _rb;
     protected CharacterAnimationController _characterAnimationController;
@@ -24,22 +27,35 @@ public class Enemy : MonoBehaviour
     protected bool _isMoving;
     protected bool _shouldMove;
     private Func<AliveState> _getAliveState;
+    protected bool _isPredictionEnabled;
 
-    public virtual void Initialize(ComposableModificationManager modManager, Func<AliveState> getAliveState)
+    public virtual void Initialize(ComposableModificationManager modManager, Func<AliveState> getAliveState, bool isPredictionEnabled)
     {
         _rb = GetComponent<Rigidbody>();
         _characterAnimationController = GetComponent<CharacterAnimationController>();
         _characterAnimationController.Initialize(false);
         _ragdollController = GetComponent<RagdollController>();
 
+        _isPredictionEnabled = isPredictionEnabled;
+
         _modManager = modManager;
         _getAliveState = getAliveState;
         weapon.OnShoot = () => _characterAnimationController.FireAnimation();
+        
+        if (_isPredictionEnabled)
+        {
+            CreatePredictionVisualization();
+        }
     }
 
     private void Update()
     {
         _characterAnimationController.Tick(transform.InverseTransformVector(_rb.linearVelocity));
+        
+        if (_isPredictionEnabled && _predictionDummy != null && _lineRenderer != null)
+        {
+            UpdatePredictionVisualization();
+        }
     }
     
     protected virtual void FixedUpdate()
@@ -181,6 +197,11 @@ public class Enemy : MonoBehaviour
         var startPosition = _rb.position;
         var targetPosition = new Vector3(targetX, _rb.position.y, targetZ);
 
+        if (_isPredictionEnabled)
+        {
+            _targetPosition = targetPosition;
+        }
+
         var journeyLength = Vector3.Distance(startPosition, targetPosition);
         if (journeyLength < 0.01f)
         {
@@ -232,6 +253,11 @@ public class Enemy : MonoBehaviour
             // Set IsMoving to false when movement stops
             _characterAnimationController.Tick(Vector3.zero);
         }
+        
+        if (_isPredictionEnabled)
+        {
+            _targetPosition = Vector3.zero;
+        }
     }
     
     private float GetMoveDirection()
@@ -269,6 +295,87 @@ public class Enemy : MonoBehaviour
                     }
                 }
             }
+        }
+        
+        if (_predictionDummy != null)
+        {
+            _lineRenderer.enabled = false;
+
+            Destroy(_predictionDummy);
+        }
+    }
+    
+    private void CreatePredictionVisualization()
+    {
+        _predictionDummy = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        _predictionDummy.name = "PredictionDummy";
+        
+        var renderer = _predictionDummy.GetComponent<Renderer>();
+        var material = new Material(Shader.Find("Sprites/Default"));
+        material.color = new Color(1f, 0f, 0f, 0.3f);
+        material.SetFloat("_Mode", 3);
+        material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        material.SetInt("_ZWrite", 0);
+        material.DisableKeyword("_ALPHATEST_ON");
+        material.EnableKeyword("_ALPHABLEND_ON");
+        material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+        material.renderQueue = 3000;
+        renderer.material = material;
+        
+        var collider = _predictionDummy.GetComponent<Collider>();
+        if (collider != null)
+        {
+            Destroy(collider);
+        }
+        
+        _lineRenderer = CreateLineRenderer();
+    }
+    
+    private LineRenderer CreateLineRenderer()
+    {
+        var lineObj = new GameObject("PredictionLine");
+        lineObj.transform.SetParent(transform);
+        
+        var lineRenderer = lineObj.AddComponent<LineRenderer>();
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        lineRenderer.material.color = new Color(1f, 0f, 0f, 0.7f);
+        lineRenderer.startWidth = 0.1f;
+        lineRenderer.endWidth = 0.1f;
+        lineRenderer.positionCount = 2;
+        lineRenderer.useWorldSpace = true;
+        
+        var texture = new Texture2D(64, 1);
+        for (int i = 0; i < 64; i++)
+        {
+            var color = (i / 8) % 2 == 0 ? Color.white : Color.clear;
+            texture.SetPixel(i, 0, color);
+        }
+        texture.Apply();
+        
+        lineRenderer.material.mainTexture = texture;
+        lineRenderer.textureMode = LineTextureMode.Tile;
+        
+        return lineRenderer;
+    }
+    
+    private void UpdatePredictionVisualization()
+    {
+        if (_isMoving && _targetPosition != Vector3.zero)
+        {
+            var dummyPosition = new Vector3(_targetPosition.x, _targetPosition.y + 1f, _targetPosition.z);
+            _predictionDummy.transform.position = dummyPosition;
+
+            _lineRenderer.SetPosition(0, transform.position);
+            _lineRenderer.SetPosition(1, _targetPosition);
+            
+            _predictionDummy.SetActive(true);
+            _lineRenderer.enabled = true;
+        }
+        else
+        {
+            _predictionDummy.SetActive(false);
+            _lineRenderer.enabled = false;
         }
     }
 }
