@@ -231,7 +231,7 @@ public class Player : MonoBehaviour, utility.IAliveEntity
     private Vector3 GetMouseWorldPosition()
     {
         var ray = cam.ScreenPointToRay(Input.mousePosition);
-        var groundPlane = new Plane(Vector3.up, new Vector3(0f, transform.position.y + 1f, 0f));
+        var groundPlane = new Plane(Vector3.up, new Vector3(0f, transform.position.y + 2f, 0f));
 
         return groundPlane.Raycast(ray, out var distance) ? ray.GetPoint(distance) : Vector3.zero;
     }

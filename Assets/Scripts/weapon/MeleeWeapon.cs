@@ -66,14 +66,9 @@ public class MeleeWeapon : Weapon
     private void PerformMeleeHit(Quaternion rotation, float damage, ReadOnlyCollection<Modification> modifications)
     {
         var attackPosition = transform.position;
-        
-        // 
-        
-        
+
         // Find all colliders in range - use -1 for all layers initially
         var hitColliders = Physics.OverlapSphere(attackPosition, meleeRange, -1);
-        
-        
         
         foreach (var hitCollider in hitColliders)
         {

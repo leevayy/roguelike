@@ -446,6 +446,35 @@ Transform:
   - {fileID: 696581848}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &251860221 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5200989343041906076, guid: 1bf757e21acbb4476ad9bf52bb29f44e, type: 3}
+  m_PrefabInstance: {fileID: 6804118904846794209}
+  m_PrefabAsset: {fileID: 0}
+--- !u!82 &251860223 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 7832368160552939521, guid: 1bf757e21acbb4476ad9bf52bb29f44e, type: 3}
+  m_PrefabInstance: {fileID: 6804118904846794209}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &251860227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 251860221}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fcbc70b2394fa2c4d9f7730a068babaf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  laserPrefab: {fileID: 0}
+  dummy: {fileID: 0}
+  flatDamage: 10
+  cooldown: 0.1
+  shootSound: {fileID: 251860223}
+  isOwnerPlayer: 1
+  color: {r: 0.6784314, g: 0.8470589, b: 0.9019608, a: 1}
 --- !u!1001 &260548502
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3938,6 +3967,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 246525269}
     m_Modifications:
+    - target: {fileID: 636403143654912260, guid: 1bf757e21acbb4476ad9bf52bb29f44e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2931189798586162134, guid: 1bf757e21acbb4476ad9bf52bb29f44e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -3982,6 +4015,10 @@ PrefabInstance:
       propertyPath: cam
       value: 
       objectReference: {fileID: 963194227}
+    - target: {fileID: 3330337427010115037, guid: 1bf757e21acbb4476ad9bf52bb29f44e, type: 3}
+      propertyPath: weapon
+      value: 
+      objectReference: {fileID: 251860227}
     - target: {fileID: 5153738581344691601, guid: 1bf757e21acbb4476ad9bf52bb29f44e, type: 3}
       propertyPath: m_Name
       value: PlayerEntity
@@ -3989,7 +4026,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5200989343041906076, guid: 1bf757e21acbb4476ad9bf52bb29f44e, type: 3}
+      insertIndex: 3
+      addedObject: {fileID: 251860227}
   m_SourcePrefab: {fileID: 100100000, guid: 1bf757e21acbb4476ad9bf52bb29f44e, type: 3}
 --- !u!23 &6939490597754168520
 MeshRenderer:
