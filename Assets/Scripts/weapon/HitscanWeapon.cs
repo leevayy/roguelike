@@ -84,21 +84,20 @@ class HitscanWeapon : Weapon
     private async Awaitable DrawLaser(Vector3 start, Vector3 end)
     {
         _currentTask?.Cancel();
-        _currentTask = null;
 
         _lineRenderer.SetPositions(new Vector3[] { start, end });
 
         _lineRenderer.enabled = true;
 
-        _currentTask = Awaitable.WaitForSecondsAsync(LASER_TTL);
-
         try
         {
+            _currentTask = Awaitable.WaitForSecondsAsync(LASER_TTL);
             await _currentTask;
 
+            _currentTask = null;
             _lineRenderer.enabled = false;
         }
-        catch (TaskCanceledException) { }
+        catch (OperationCanceledException) { }
     }
 
     private LineRenderer CreateLineRenderer()
