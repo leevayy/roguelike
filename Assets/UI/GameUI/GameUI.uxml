@@ -7,6 +7,9 @@
                 <ui:TextElement class="goal" name="goal" text="No goal" />
             </ui:VisualElement>
             <ui:VisualElement>
+                <ui:TextElement class="timer timer-remaining" name="timer-remaining" text="00:00.000" />
+            </ui:VisualElement>
+            <ui:VisualElement>
                 <ui:TextElement class="timer hidden small" name="history-timer" text="00:00.000" />
                 <ui:TextElement class="timer" name="timer" text="00:00.000" />
             </ui:VisualElement>

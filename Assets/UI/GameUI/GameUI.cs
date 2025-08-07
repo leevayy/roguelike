@@ -24,6 +24,7 @@ public class GameUI : MonoBehaviour
     
     private TextElement _scoreText;
     private TextElement _timerText;
+    private TextElement _timerRemainingText;
     private TextElement _goalText;
     private TextElement _hpText;
     private TextElement _killText;
@@ -38,6 +39,8 @@ public class GameUI : MonoBehaviour
         _scoreText = _document.rootVisualElement.Q("score") as TextElement;
         
         _timerText = _document.rootVisualElement.Q("timer") as TextElement;
+
+        _timerRemainingText = _document.rootVisualElement.Q("timer-remaining") as TextElement;
         
         _goalText = _document.rootVisualElement.Q("goal") as TextElement;
         
@@ -54,6 +57,10 @@ public class GameUI : MonoBehaviour
     public void UpdateScore(int score)
     {
         _scoreText.text = $"💵: ${score}";
+    }
+    public void UpdateTimerRemaining(float timeInSeconds)
+    {
+        _timerRemainingText.text = TimeFormatter.FormatTime(timeInSeconds);
     }
 
     public void UpdateTimer(float timeInSeconds)

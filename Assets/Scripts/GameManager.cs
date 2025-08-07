@@ -49,6 +49,17 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+    private const float THREE_MINUTES = 180f;
+    private float _timeRemainingElapsed;
+    private float timeRemainingElapsed
+    {
+        get => _timeRemainingElapsed;
+        set
+        {
+            _timeRemainingElapsed = value;
+            GameUI.instance.UpdateTimerRemaining(THREE_MINUTES - value);
+        }
+    }
 
     private Goal _goal;
     public Goal goal
@@ -67,6 +78,8 @@ public class GameManager : MonoBehaviour
             {
                 ShowGameOverScreen(true);
             }
+
+            timeRemainingElapsed = 0;
             
             _goal = value;
             _goalNumber++;
@@ -112,7 +125,7 @@ public class GameManager : MonoBehaviour
         set
         {
             if (_score == value) return;
-            
+
             var moneyDiff = value - _score;
             var moneyPosition = new Vector2(60 + Random.Range(0, 15), 15 + Random.Range(0, 15));
 
@@ -124,12 +137,12 @@ public class GameManager : MonoBehaviour
             {
                 StartCoroutine(damagePopup.ShowDamagePopup($"-${Mathf.Abs(moneyDiff)}", moneyPosition));
             }
-            
+
             _score = value;
             GameUI.instance.UpdateScore(value);
 
             UpdatePlayerMass(_score);
-            
+
             if (goal.Type == GoalType.GET_SCORE_N && value >= goal.N)
             {
                 goal = GetNextGoal(_goalNumber);
@@ -169,8 +182,12 @@ public class GameManager : MonoBehaviour
     private void Update()
     {
         timeElapsed += Time.deltaTime;
+        timeRemainingElapsed += Time.deltaTime;
 
-        // if (player.Healthpoints <= 0 || mods.include(money=life) && score <= 0)
+        if (timeRemainingElapsed >= THREE_MINUTES)
+        {
+            ShowGameOverScreen(false);
+        }
 
         if (player.Healthpoints <= 0)
         {
