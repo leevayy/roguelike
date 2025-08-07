@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviour
             if (value == 0) _totalKills += _killCount;
                 
             _killCount = value;
-            
+
             GameUI.instance.UpdateKillCount(value, GetInterest());
 
             if (goal.Type == GoalType.KILL_N_ENEMIES && value >= goal.N)
@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour
                 goal = GetNextGoal(_goalNumber);
             }
         }
-    }
+    } 
     private const float THREE_MINUTES = 180f;
     private float _timeRemainingElapsed;
     private float timeRemainingElapsed
@@ -58,46 +58,6 @@ public class GameManager : MonoBehaviour
         {
             _timeRemainingElapsed = value;
             GameUI.instance.UpdateTimerRemaining(THREE_MINUTES - value);
-        }
-    }
-
-    private Goal _goal;
-    public Goal goal
-    {
-        get => _goal;
-        private set
-        {
-            winSound.Play();
-            
-            if (!_duck && player.modManager.HasMod(ModificationType.RubberDuck))
-            {
-                _duck = Instantiate(rubberDuckPrefab, transform);    
-            }
-
-            if (_goalNumber == 9)
-            {
-                ShowGameOverScreen(true);
-            }
-
-            timeRemainingElapsed = 0;
-            
-            _goal = value;
-            _goalNumber++;
-            killCount = 0;
-
-            player.Heal();
-            
-            GameUI.instance.UpdateGoal(_goalNumber, value);
-
-            if (_goalNumber > 1)
-            {
-                enemySpawner.StopSpawning();
-                KillAll();
-                
-               RerollShop();
-                
-                _ = DrawToExit();
-            }
         }
     }
 
@@ -129,6 +89,8 @@ public class GameManager : MonoBehaviour
             var moneyDiff = value - _score;
             var moneyPosition = new Vector2(60 + Random.Range(0, 15), 15 + Random.Range(0, 15));
 
+            GameUI.instance.UpdateKillCount(killCount, GetInterest());
+
             if (moneyDiff > 0)
             {
                 StartCoroutine(damagePopup.ShowDamagePopup($"+${moneyDiff}", moneyPosition));
@@ -143,9 +105,54 @@ public class GameManager : MonoBehaviour
 
             UpdatePlayerMass(_score);
 
-            if (goal.Type == GoalType.GET_SCORE_N && value >= goal.N)
+            // if (goal.Type == GoalType.GET_SCORE_N && value >= goal.N)
+            // {
+            //     goal = GetNextGoal(_goalNumber);
+            // }
+        }
+    }
+    
+    private Goal _goal;
+    public Goal goal
+    {
+        get => _goal;
+        private set
+        {
+            winSound.Play();
+            
+            if (!_duck && player.modManager.HasMod(ModificationType.RubberDuck))
             {
-                goal = GetNextGoal(_goalNumber);
+                _duck = Instantiate(rubberDuckPrefab, transform);    
+            }
+
+            if (_goalNumber == 9)
+            {
+                ShowGameOverScreen(true);
+            }
+
+            timeRemainingElapsed = 0;
+            
+            _goal = value;
+            _goalNumber++;
+            killCount = 0;
+
+            if (_goalNumber == 1)
+            {
+                player.Heal();
+            }
+
+            GameUI.instance.UpdateGoal(_goalNumber, value);
+
+            if (_goalNumber > 1)
+            {
+                score += GetInterest() + Random.Range(7, 9);
+
+                enemySpawner.StopSpawning();
+                KillAll();
+                
+                RerollShop();
+                
+                _ = DrawToExit();
             }
         }
     }
@@ -240,9 +247,9 @@ public class GameManager : MonoBehaviour
                 takeDamage2Sound.Play();
             }
             
-            var moneyLost = Mathf.Max((int)hitInfo.Damage / 10, 8);
+            // var moneyLost = Mathf.Max((int)hitInfo.Damage / 10, 8);
 
-            score -= moneyLost;
+            // score -= moneyLost;
         }
 
         if (hitInfo.Source == GameHitEntity.Ally && gameHitEntity == GameHitEntity.Enemy)
@@ -262,7 +269,7 @@ public class GameManager : MonoBehaviour
 
     public void OnKill(Vector3 enemyPosition)
     {
-        score += GetInterest() + Random.Range(7, 9);
+        // score += GetInterest() + Random.Range(7, 9);
 
         player.modManager.ApplyOnKill(player.GetAliveState(), enemyPosition);
         
@@ -272,11 +279,17 @@ public class GameManager : MonoBehaviour
     private int GetInterest()
     {
         var interest = (int)Math.Floor(score / 15f);
-        var interestPerKill = (int)Math.Floor(_killCount / 5f);
+        var interestPerTime = (int)Math.Floor((THREE_MINUTES - timeRemainingElapsed)/60f);
 
         const int maxInterest = 20;
 
-        var moneyGained = Mathf.Min(interestPerKill + interest, maxInterest);
+        var playerState = player.GetAliveState(); 
+        if (playerState.HealthPercentage == 1)
+        {
+            interest += 2;
+        }
+
+        var moneyGained = Mathf.Min(interestPerTime + interest, maxInterest);
         
         return Mathf.Max(moneyGained, 0);
     }
@@ -325,11 +338,11 @@ public class GameManager : MonoBehaviour
                 const int endN = 7;
                 
                 return new Goal(GoalType.KILL_N_ENEMIES, Random.Range(startN, endN) * nextGoalNumber);
-            case GoalType.GET_SCORE_N:
-                const int startScore = 50;
-                const int endScore = 60;
+            // case GoalType.GET_SCORE_N:
+            //     const int startScore = 50;
+            //     const int endScore = 60;
                 
-                return new Goal(GoalType.GET_SCORE_N, score + Random.Range(startScore, endScore) * nextGoalNumber);
+            //     return new Goal(GoalType.GET_SCORE_N, score + Random.Range(startScore, endScore) * nextGoalNumber);
             
             default:
                 return new Goal();

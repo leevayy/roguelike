@@ -4,7 +4,7 @@ using Random = UnityEngine.Random;
 public enum GoalType
 {
     KILL_N_ENEMIES,
-    GET_SCORE_N,
+    // GET_SCORE_N,
 }
 
 public class Goal

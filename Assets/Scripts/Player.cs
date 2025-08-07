@@ -334,9 +334,13 @@ public class Player : MonoBehaviour, utility.IAliveEntity
             {
                 AddModification(item.modification, item.name);
             }
-            else
+            else if (item.type == StoreItemType.Reroll)
             {
                 GameManager.instance.RerollShop();
+            }
+            else if (item.type == StoreItemType.Heal)
+            {
+                Heal(0.25f);
             }
 
             return true;

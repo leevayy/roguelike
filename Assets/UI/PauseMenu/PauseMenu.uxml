@@ -2,6 +2,19 @@
     <Style src="PauseMenu.uss" />
     <ui:VisualElement name="container" class="container hidden">
         <ui:TextElement text="alpha" />
+        <ui:VisualElement name="hints">
+            <ui:VisualElement>
+                <ui:TextElement name="money" text="интерес начисляется за количество денег (1$ за 15$) и оставшиеся минуты (1$ за 1 минуту)"/>
+                <ui:TextElement name="money-2" text="если закончить раунд с полным здоровьем (+2$)"/>
+            </ui:VisualElement>
+            <ui:TextElement name="wasd" text="wasd - передвижение"/>
+            <ui:TextElement name="rmb" text="лкм - стрельба"/>
+            <ui:TextElement name="space" text="space - рывок"/>
+            <ui:TextElement name="p" text="p - пауза"/>
+            <ui:TextElement name="fe" text="f/e - взаимодействие"/>
+            <ui:TextElement name="g" text="g - сброс"/>
+            <ui:TextElement name="shift" text="shift - отдалить камеру"/>
+        </ui:VisualElement>
         <ui:Button name="resume" text="Продолжить" />
         <ui:Button name="restart" text="Начать заново" />
     </ui:VisualElement>

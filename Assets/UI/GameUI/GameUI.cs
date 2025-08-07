@@ -75,7 +75,8 @@ public class GameUI : MonoBehaviour
     
     public void UpdateKillCount(int killCount, int interest)
     {
-        _killText.text = $"☠️: {killCount} (+${interest})";
+        _killText.text = $"☠️: {killCount}";
+        // _killText.text = $"☠️: {killCount} (+${interest})";
     }
     
     public void UpdateGoal(int goalNumber, Goal goal)
@@ -87,7 +88,7 @@ public class GameUI : MonoBehaviour
         
         _goalText.text = $"({goalNumber}/9)" + goal.Type switch
         {
-            GoalType.GET_SCORE_N => $"Заработай ${goal.N}",
+            // GoalType.GET_SCORE_N => $"Заработай ${goal.N}",
             GoalType.KILL_N_ENEMIES => $"Убей врагов: {goal.N}",
             _ => "Нет цели"
         };

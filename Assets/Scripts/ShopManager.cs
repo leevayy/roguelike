@@ -29,13 +29,15 @@ public class ShopManager : MonoBehaviour
         _ = DestroyStoreItems(0f);
 
         CreateSkipStoreItem();
-        
+
         for (var i = 0; i < 3; i++)
         {
             CreateModStoreItem(i, (int)Random.Range(minPrice, maxPrice), discount);
         }
-        
+
         CreateStoreItem(new StoreItem(StoreItemType.Reroll), 3);
+        
+        CreateStoreItem(new StoreItem(StoreItemType.Heal), 4);
     }
 
     private void CreateModStoreItem(int order, float price, int discount)

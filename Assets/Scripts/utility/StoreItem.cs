@@ -6,7 +6,8 @@ public enum StoreItemType
 {
     Modification,
     Skip,
-    Reroll
+    Reroll,
+    Heal
 }
 
 public class StoreItem
@@ -27,7 +28,7 @@ public class StoreItem
         // Safety checks to prevent null reference exceptions
         if (mod?.Strategy != null)
         {
-            name = mod.Strategy.Name ?? "Неизвестная модификация";
+            name = $"({mod.Strategy.Rarity.ToString()[0]}) {mod.Strategy.Name ?? "Неизвестная модификация"}";
             description = mod.Strategy.Description ?? "Описание отсутствует";
         }
         else
@@ -37,20 +38,21 @@ public class StoreItem
             Debug.LogWarning($"StoreItem: Strategy is null for modification type {mod?.Type}");
         }
     }
-    public float GetRarityPriceModificator(Rarity rarity)
+
+    public float GetRarityPrice(Rarity rarity)
     {
         switch (rarity)
         {
             case Rarity.Common:
-                return 1f;
+                return 6f;
             case Rarity.Uncommon:
-                return 1.2f;
+                return 8f;
             case Rarity.Rare:
-                return 1.5f;
+                return 10f;
             case Rarity.Epic:
-                return 2f;
+                return 11f;
             case Rarity.Legendary:
-                return 3f;
+                return 12f;
             default:
                 return 1f;
         }
@@ -58,10 +60,9 @@ public class StoreItem
     
     public StoreItem(Modification mod, float p, float discount) : this(mod, p)
     {
-        var modifier = GetRarityPriceModificator(mod.Strategy.Rarity);
+        price = GetRarityPrice(mod.Strategy.Rarity);
 
-        price = Mathf.Round(p * modifier * (100 - discount) / 100);
-        
+        discount = 0;
         if (discount > 0)
         {
             name += $"(-{discount}%)";
@@ -79,10 +80,14 @@ public class StoreItem
                 break;
             case StoreItemType.Reroll:
                 description = "Обновить";
-                price = 50;
+                price = 1;
+                break;
+            case StoreItemType.Heal:
+                description = "Восстановить здоровье";
+                price = 1;
                 break;
             case StoreItemType.Modification:
-                this.modification = new Modification();
+                modification = new Modification();
                 price = 9999;
                 break;
             default:
