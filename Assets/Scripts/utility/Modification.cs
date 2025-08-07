@@ -32,7 +32,8 @@ namespace utility
         Rampage,
         Momentum,
         HalfDamageAndTaken,
-        PredictionModification
+        PredictionModification,
+        HitscanModification
     }
 
     public class Modification
@@ -98,6 +99,7 @@ namespace utility
                 ModificationType.Momentum => new MomentumModification(),
                 ModificationType.HalfDamageAndTaken => new HalfDamageAndTakenModification(),
                 ModificationType.PredictionModification => new PredictionModification(),
+                ModificationType.HitscanModification => new HitscanModification(),
                 _ => throw new ArgumentException($"Unknown modification type: {modType}"),
             };
         }

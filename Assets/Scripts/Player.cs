@@ -13,6 +13,7 @@ public class Player : MonoBehaviour, utility.IAliveEntity
     [SerializeField] private Camera cam;
     [SerializeField] private GameObject debugPointer;
     [SerializeField] private Weapon weapon;
+    [SerializeField] private Weapon hitscanWeapon;
     [SerializeField] private GameObject moneyBagPrefab;
     [SerializeField] private GameObject moneyBagAnchor;
     [SerializeField] private GameObject modificationPrefab;
@@ -36,6 +37,7 @@ public class Player : MonoBehaviour, utility.IAliveEntity
     private float _sinceLastAutoShot = 0f;
     
     private readonly List<GameObject> _modObjects = new();
+    private Weapon _currentWeapon => weapon.enabled ? weapon : hitscanWeapon;
     
     public ComposableModificationManager modManager { get; private set; }
     
@@ -212,15 +214,28 @@ public class Player : MonoBehaviour, utility.IAliveEntity
             const float extentionLength = 10f;
             
             var mouseWorldPosition = GetMouseWorldPosition();
+            var playerPosition = new Vector3(_rb.position.x, 0, _rb.position.z);
             
-            var mouseOffset = new Vector3(mouseWorldPosition.x, 0, mouseWorldPosition.z).normalized * extentionLength;
+            var mouseOffset = (new Vector3(mouseWorldPosition.x, 0, mouseWorldPosition.z) - playerPosition).normalized * extentionLength;
 
-            var nextTargetPosition = (targetPosition + _cameraOffset + mouseOffset) / 2;
-            
-            targetPosition = nextTargetPosition;
+            targetPosition = targetPosition + mouseOffset;
         }
         
         cam.transform.position = Vector3.SmoothDamp(cam.transform.position, targetPosition, ref _cameraVelocity, 0.25f);
+    }
+
+    public void ChangeWeaponType()
+    {
+        if (weapon.enabled)
+        {
+            weapon.enabled = false;
+            hitscanWeapon.enabled = true;
+        }
+        else
+        {
+            weapon.enabled = true;
+            hitscanWeapon.enabled = false;
+        }
     }
 
     public void SetMoneyBagWeight(float weight)
@@ -257,7 +272,7 @@ public class Player : MonoBehaviour, utility.IAliveEntity
 
     private void Shoot()
     {
-        weapon.Shoot(GetAliveState(), transform.rotation, modManager.GetModifications());
+        _currentWeapon.Shoot(GetAliveState(), transform.rotation, modManager.GetModifications());
         _characterAnimationController.FireAnimation();
     }
 
@@ -269,7 +284,7 @@ public class Player : MonoBehaviour, utility.IAliveEntity
         // Create visual representation of the modification
         if (modificationPrefab != null)
         {
-            var modObject = Instantiate(modificationPrefab, weapon.transform);
+            var modObject = Instantiate(modificationPrefab, _currentWeapon.transform);
             _modObjects.Add(modObject);
 
             var modificationObjectComponent = modObject.GetComponent<ModificationObject>();

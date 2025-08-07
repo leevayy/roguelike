@@ -32,17 +32,31 @@ class HitscanWeapon : Weapon
 
     private void ShootLaser(Vector3 directionWithRecoil, Action<GameObject, Laser, Quaternion, float, int> applyLaserData, Quaternion rotation, float damage, int shotId)
     {
-        var isHit = Physics.Raycast(transform.position, directionWithRecoil, out var hit, 100f);
-
-        var hitPoint = isHit ? hit.point : transform.position + directionWithRecoil * 100f;
-
-        var targetPosition = isHit ? hit.transform.position : hitPoint;
-
-        var laserHit = CreateLaserObject(targetPosition, applyLaserData, rotation, damage, shotId);
-
+        var maxDistance = 100f;
+        var endPoint = transform.position + directionWithRecoil * maxDistance;
+        
+        var isHit = Physics.Raycast(transform.position, directionWithRecoil, out var hit, maxDistance);
+        var hitPoint = isHit ? hit.point : endPoint;
+        
+        var laserPosition = _shouldApplyGhost ? endPoint : (isHit ? hit.transform.position : hitPoint);
+        var lineEnd = _shouldApplyGhost ? endPoint : hitPoint;
+        
+        var laserHit = CreateLaserObject(laserPosition, applyLaserData, rotation, damage, shotId);
+        var laserCollider = laserHit.GetComponent<Collider>();
+        
+        if (_shouldApplyGhost)
+        {
+            var hits = Physics.RaycastAll(transform.position, directionWithRecoil, maxDistance);
+            Array.Sort(hits, (h1, h2) => h1.distance.CompareTo(h2.distance));
+            
+            foreach (var raycastHit in hits)
+            {
+                HitColliderWithLaserObject(raycastHit.collider, laserCollider);
+            }
+        }
+        
         var lineRenderer = CreateLineRenderer(laserHit);
-
-        _ = DrawLaser(lineRenderer, transform.position, hitPoint);
+        _ = DrawLaser(lineRenderer, transform.position, lineEnd);
     }
 
     private Vector3 GetDirectionWithRecoil(Vector3 direction)
@@ -72,6 +86,11 @@ class HitscanWeapon : Weapon
         applyLaserData(laserHit, laser, rotation, damage, shotId);
 
         return laserHit;
+    }
+
+    private void HitColliderWithLaserObject(Collider target, Collider laserCollider)
+    {
+        target.SendMessage("OnTriggerEnter", laserCollider, SendMessageOptions.DontRequireReceiver);
     }
 
     private async Awaitable DrawLaser(LineRenderer lineRenderer, Vector3 start, Vector3 end)
