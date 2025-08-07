@@ -192,7 +192,7 @@ public class GameManager : MonoBehaviour
         var discount = _goalNumber switch
         {
             2 => 94,
-            3 => 62,
+            3 => 83,
             _ => 0
         };
 

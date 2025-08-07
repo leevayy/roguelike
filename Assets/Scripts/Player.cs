@@ -356,7 +356,6 @@ public class Player : MonoBehaviour, utility.IAliveEntity
 
         modManager.ApplyOnDrop(GetAliveState());
         
-        // Create a copy of the modifications to avoid issues with clearing the underlying list
         var mods = new List<Modification>(modManager.GetModifications());
         
         foreach (var modObject in _modObjects)
