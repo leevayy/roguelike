@@ -64,11 +64,6 @@ public class ComposableModificationManager : MonoBehaviour
         }
     }
 
-    public void ApplyOnKill(utility.AliveState aliveState)
-    {
-        ApplyOnKill(aliveState, Vector3.zero); // Default for backward compatibility
-    }
-
     public void ApplyOnKill(utility.AliveState aliveState, Vector3 enemyPosition)
     {
         foreach (var mod in _modifications)

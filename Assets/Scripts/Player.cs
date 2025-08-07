@@ -300,7 +300,6 @@ public class Player : MonoBehaviour, utility.IAliveEntity
     public void RemoveModification(ModificationType modificationType)
     {
         modManager.RemoveAllModifiersOfType(modificationType);
-        modManager.ApplyOnDrop(GetAliveState());
     }
 
     public void Heal(float part = 1)
@@ -354,6 +353,8 @@ public class Player : MonoBehaviour, utility.IAliveEntity
     public ReadOnlyCollection<Modification> DropModifications()
     {
         GameUI.instance.ClearMods();
+
+        modManager.ApplyOnDrop(GetAliveState());
         
         // Create a copy of the modifications to avoid issues with clearing the underlying list
         var mods = new List<Modification>(modManager.GetModifications());
